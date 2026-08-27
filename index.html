@@ -62,7 +62,7 @@
             background: #d1b2a7;
             border-radius: 9999px;
         }
-        .dark ::webkit-scrollbar-thumb {
+        .dark ::-webkit-scrollbar-thumb {
             background: #5e3428;
         }
         .animate-fade-in {
@@ -132,20 +132,16 @@
                 <button onclick="switchView('calendar')" id="navBtn-calendar" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
                     <i class="fa-regular fa-calendar-days"></i> カレンダー
                 </button>
+                <button onclick="switchView('import')" id="navBtn-import" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
+                    <i class="fa-solid fa-file-import text-amber-500"></i> インポート・移行
+                </button>
                 <button onclick="switchView('analytics')" id="navBtn-analytics" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
                     <i class="fa-solid fa-chart-pie"></i> 振り返り・分析
-                </button>
-                <button onclick="switchView('favorites')" id="navBtn-favorites" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
-                    <i class="fa-solid fa-star text-amber-400"></i> お気に入り
                 </button>
             </nav>
 
             <!-- Action Controls -->
             <div class="flex items-center gap-2">
-                <!-- Lock App Button -->
-                <button onclick="lockAppManually()" id="manualLockBtn" title="日記をロック" class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition">
-                    <i class="fa-solid fa-lock text-sm"></i>
-                </button>
                 <!-- Dark Mode Toggle -->
                 <button onclick="toggleDarkMode()" title="テーマ切替" class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition">
                     <i class="fa-solid fa-moon dark:hidden text-sm"></i>
@@ -165,7 +161,7 @@
     </header>
 
     <!-- Mobile Bottom Navigation Bar -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-2 flex justify-around items-center">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-3 py-2 flex justify-around items-center">
         <button onclick="switchView('timeline')" id="mobileNav-timeline" class="flex flex-col items-center gap-1 text-xs font-medium text-brand-600 dark:text-brand-400">
             <i class="fa-solid fa-list-ul text-lg"></i>
             <span>一覧</span>
@@ -177,13 +173,13 @@
         <button onclick="openEntryEditor()" class="w-12 h-12 -mt-5 rounded-full bg-brand-600 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-600/40 active:scale-90 transition">
             <i class="fa-solid fa-plus"></i>
         </button>
+        <button onclick="switchView('import')" id="mobileNav-import" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
+            <i class="fa-solid fa-file-import text-lg"></i>
+            <span>移行</span>
+        </button>
         <button onclick="switchView('analytics')" id="mobileNav-analytics" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
             <i class="fa-solid fa-chart-pie text-lg"></i>
             <span>分析</span>
-        </button>
-        <button onclick="switchView('favorites')" id="mobileNav-favorites" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
-            <i class="fa-solid fa-star text-lg"></i>
-            <span>お気に入り</span>
         </button>
     </div>
 
@@ -229,24 +225,9 @@
                         <!-- Dynamic Tags rendered here -->
                     </div>
                 </div>
-
-                <!-- Mood Quick Selector Filter -->
-                <div class="bg-white dark:bg-stone-800/80 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
-                    <h3 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-3">気分でフィルター</h3>
-                    <div class="grid grid-cols-4 gap-2 text-center" id="moodFilterGrid">
-                        <button onclick="filterByMood('ALL')" id="moodFilter-ALL" class="p-2 rounded-xl border border-brand-500 bg-brand-50 dark:bg-stone-700 text-xs font-medium transition">全気分</button>
-                        <button onclick="filterByMood('😊')" id="moodFilter-😊" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">😊</button>
-                        <button onclick="filterByMood('🌿')" id="moodFilter-🌿" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🌿</button>
-                        <button onclick="filterByMood('☕')" id="moodFilter-☕" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">☕</button>
-                        <button onclick="filterByMood('🌟')" id="moodFilter-🌟" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🌟</button>
-                        <button onclick="filterByMood('🌧️')" id="moodFilter-🌧️" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🌧️</button>
-                        <button onclick="filterByMood('🔥')" id="moodFilter-🔥" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🔥</button>
-                        <button onclick="filterByMood('⚡')" id="moodFilter-⚡" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">⚡</button>
-                    </div>
-                </div>
             </aside>
 
-            <!-- Dynamic Content View Area (Timeline, Calendar, Analytics, Favorites) -->
+            <!-- Dynamic Content View Area -->
             <section class="lg:col-span-3 space-y-6">
 
                 <!-- 1. TIMELINE / LIST VIEW -->
@@ -256,7 +237,6 @@
                             <h2 class="text-lg font-bold font-rounded text-stone-800 dark:text-stone-100" id="timelineTitle">日記一覧</h2>
                             <span id="entryCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-800 dark:bg-stone-800 dark:text-brand-300">0件</span>
                         </div>
-                        <!-- Sort order switch -->
                         <div class="flex items-center gap-2 text-xs text-stone-500">
                             <span>並び順:</span>
                             <select id="sortOrderSelect" onchange="renderCurrentView()" class="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg px-2 py-1 text-xs text-stone-700 dark:text-stone-300 focus:outline-none">
@@ -275,7 +255,6 @@
                 <!-- 2. CALENDAR VIEW -->
                 <div id="view-calendar" class="view-content hidden space-y-4">
                     <div class="bg-white dark:bg-stone-800 rounded-3xl p-6 border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
-                        <!-- Calendar Header Controller -->
                         <div class="flex items-center justify-between mb-6">
                             <h2 id="calendarMonthYear" class="text-xl font-bold font-rounded text-stone-800 dark:text-stone-100">2026年 8月</h2>
                             <div class="flex items-center gap-2">
@@ -289,7 +268,6 @@
                             </div>
                         </div>
 
-                        <!-- Calendar Grid -->
                         <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-bold text-stone-400">
                             <div class="py-2 text-red-500">日</div>
                             <div class="py-2">月</div>
@@ -300,12 +278,70 @@
                             <div class="py-2 text-blue-500">土</div>
                         </div>
                         <div id="calendarGrid" class="grid grid-cols-7 gap-1 md:gap-2">
-                            <!-- Days rendered via JavaScript -->
+                            <!-- Calendar Days -->
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. ANALYTICS VIEW -->
+                <!-- 3. IMPORT / MIGRATION VIEW -->
+                <div id="view-import" class="view-content hidden space-y-6">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-stone-800 dark:to-stone-800/80 p-6 rounded-3xl border border-amber-200/80 dark:border-stone-700 shadow-sm space-y-3">
+                        <div class="flex items-center gap-3 text-brand-700 dark:text-brand-300">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-md">
+                                <i class="fa-solid fa-file-import"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold font-rounded">他アプリ（シンプル日記など）からの移行</h2>
+                                <p class="text-xs text-stone-500 dark:text-stone-400">出力された TXT / HTML / CSV / JSON ファイルを読み込んで一括取り込みします。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Drop Zone -->
+                    <div 
+                        ondragover="event.preventDefault(); this.classList.add('border-brand-500','bg-brand-50/50')"
+                        ondragleave="this.classList.remove('border-brand-500','bg-brand-50/50')"
+                        ondrop="handleFileDrop(event)"
+                        class="bg-white dark:bg-stone-800 border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-3xl p-8 text-center space-y-4 hover:border-brand-400 transition"
+                    >
+                        <div class="w-16 h-16 bg-brand-100 dark:bg-stone-700 text-brand-600 dark:text-brand-300 rounded-full flex items-center justify-center mx-auto text-2xl">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800 dark:text-stone-100">ここにファイルをドラッグ＆ドロップ</p>
+                            <p class="text-xs text-stone-400 mt-1">対応フォーマット: TXT (日付自動区切り), HTML, CSV, JSON</p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                            <label class="cursor-pointer px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/20 transition active:scale-95">
+                                <i class="fa-solid fa-folder-open mr-1"></i> ファイルを選択
+                                <input type="file" id="importFileInput" multiple accept=".txt,.html,.htm,.csv,.json" onchange="handleFileSelect(event)" class="hidden">
+                            </label>
+                            <button onclick="loadSampleImportData()" class="px-4 py-2.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-medium transition">
+                                ✨ サンプルTXTデータ（5件）で試す
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Import Preview Container -->
+                    <div id="importPreviewContainer" class="hidden bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200 dark:border-stone-700 space-y-4 animate-fade-in">
+                        <div class="flex items-center justify-between border-b border-stone-100 dark:border-stone-700 pb-3">
+                            <h3 class="text-sm font-bold font-rounded text-stone-800 dark:text-stone-100">
+                                検出された日記データ (<span id="importCount">0</span>件)
+                            </h3>
+                            <button onclick="cancelImport()" class="text-xs text-stone-400 hover:text-stone-600">キャンセル</button>
+                        </div>
+                        <div id="importPreviewList" class="max-h-60 overflow-y-auto space-y-2 pr-1">
+                            <!-- Preview Items -->
+                        </div>
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button onclick="executeImport()" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 transition active:scale-95">
+                                一括インポートを実行する
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ANALYTICS VIEW -->
                 <div id="view-analytics" class="view-content hidden space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-white dark:bg-stone-800 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm flex items-center gap-4">
@@ -337,28 +373,15 @@
                         </div>
                     </div>
 
-                    <!-- Mood Distribution Chart Card -->
+                    <!-- Mood Chart -->
                     <div class="bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
                         <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100 mb-4">気分の分布と傾向</h3>
                         <div class="flex flex-col md:flex-row items-center gap-8">
                             <div class="w-48 h-48 relative flex items-center justify-center">
                                 <canvas id="moodChartCanvas" width="200" height="200"></canvas>
                             </div>
-                            <div id="moodLegendContainer" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
-                                <!-- Mood Legend Items rendered here -->
-                            </div>
+                            <div id="moodLegendContainer" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3 w-full"></div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- 4. FAVORITES VIEW -->
-                <div id="view-favorites" class="view-content hidden space-y-4">
-                    <div class="flex items-center gap-2 pb-2">
-                        <i class="fa-solid fa-star text-amber-400 text-xl"></i>
-                        <h2 class="text-lg font-bold font-rounded text-stone-800 dark:text-stone-100">お気に入りの日記</h2>
-                    </div>
-                    <div id="favoritesContainer" class="space-y-4">
-                        <!-- Favorites list -->
                     </div>
                 </div>
 
@@ -369,7 +392,6 @@
     <!-- CREATE / EDIT DIARY ENTRY MODAL -->
     <div id="entryModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
         <div class="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-auto animate-fade-in">
-            <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-stone-100 dark:border-stone-700/60 flex items-center justify-between bg-stone-50/50 dark:bg-stone-800">
                 <h3 id="modalHeaderTitle" class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100">新しい日記を書く</h3>
                 <button onclick="closeEntryModal()" class="w-8 h-8 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 transition flex items-center justify-center">
@@ -377,12 +399,10 @@
                 </button>
             </div>
 
-            <!-- Modal Form Body -->
-            <form id="entryForm" onsubmit="saveEntry(event)" class="p-6 space-y-5">
+            <form id="entryForm" onsubmit="saveEntry(event)" class="p-6 space-y-4">
                 <input type="hidden" id="editEntryId" value="">
 
-                <!-- Title & Date Row -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">タイトル</label>
                         <input type="text" id="entryTitleInput" required placeholder="今日を一言で表すと...?" class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
@@ -393,69 +413,30 @@
                     </div>
                 </div>
 
-                <!-- Mood & Weather Pickers -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">今日の気分</label>
-                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalMoodSelector">
-                            <!-- Dynamic Mood Buttons -->
-                        </div>
+                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">今日の気分</label>
+                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalMoodSelector"></div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">天気</label>
-                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalWeatherSelector">
-                            <!-- Dynamic Weather Buttons -->
-                        </div>
+                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">天気</label>
+                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalWeatherSelector"></div>
                     </div>
                 </div>
 
-                <!-- Tags Input -->
                 <div>
                     <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">タグ (カンマ区切り)</label>
-                    <input type="text" id="entryTagsInput" placeholder="カフェ, 読書, 仕事, 散歩" class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
+                    <input type="text" id="entryTagsInput" placeholder="カフェ, 読書, 散歩" class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
                 </div>
 
-                <!-- Rich Content Textarea -->
                 <div>
                     <div class="flex items-center justify-between mb-1">
                         <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">本文</label>
                         <span id="charCounter" class="text-[11px] text-stone-400">0 文字</span>
                     </div>
-                    <!-- Editor Quick Formatting Toolbar -->
-                    <div class="flex items-center gap-1 mb-2 p-1 bg-stone-100 dark:bg-stone-700/50 rounded-lg text-stone-600 dark:text-stone-300 text-xs">
-                        <button type="button" onclick="insertFormatting('**', '**')" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded transition" title="太字"><i class="fa-solid fa-bold"></i></button>
-                        <button type="button" onclick="insertFormatting('・ ', '')" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded transition" title="箇条書き"><i class="fa-solid fa-list-ul"></i></button>
-                        <button type="button" onclick="insertFormatting('「', '」')" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded transition" title="かぎかっこ"><i class="fa-solid fa-quote-left"></i></button>
-                        <button type="button" onclick="toggleVoiceMemoDemo()" id="voiceMemoBtn" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded text-brand-600 dark:text-brand-400 transition ml-auto flex items-center gap-1">
-                            <i class="fa-solid fa-microphone"></i> 音声メモ添付
-                        </button>
-                    </div>
-                    <textarea id="entryContentInput" rows="7" required oninput="updateCharCount()" placeholder="今日はどんな一日でしたか？感じたことや考えたことを自由に書き留めてみましょう..." class="w-full px-3.5 py-2.5 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 leading-relaxed transition"></textarea>
+                    <textarea id="entryContentInput" rows="6" required oninput="updateCharCount()" placeholder="今日はどんな一日でしたか？感じたことを自由に書き留めましょう..." class="w-full px-3.5 py-2.5 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 leading-relaxed transition"></textarea>
                 </div>
 
-                <!-- Image Attachment Section -->
-                <div>
-                    <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">写真を添える</label>
-                    <div class="flex items-center gap-3">
-                        <label class="cursor-pointer px-4 py-2 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-medium flex items-center gap-2 transition">
-                            <i class="fa-regular fa-image text-brand-600"></i> 画像を選択
-                            <input type="file" accept="image/*" id="imageFileInput" onchange="handleImageUpload(event)" class="hidden">
-                        </label>
-                        <span class="text-[11px] text-stone-400">※プレビュー表示されます</span>
-                    </div>
-                    <div id="imagePreviewArea" class="mt-3 flex flex-wrap gap-2"></div>
-                </div>
-
-                <!-- Voice memo indicator badge -->
-                <div id="voiceMemoBadge" class="hidden items-center justify-between p-2.5 bg-brand-50 dark:bg-stone-700/60 rounded-xl border border-brand-200 dark:border-stone-600 text-xs">
-                    <div class="flex items-center gap-2 text-brand-800 dark:text-brand-300">
-                        <i class="fa-solid fa-microphone text-brand-600 animate-pulse"></i>
-                        <span>音声メモが添付されています (0:15)</span>
-                    </div>
-                    <button type="button" onclick="removeVoiceMemo()" class="text-stone-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button>
-                </div>
-
-                <!-- Modal Actions Footer -->
                 <div class="pt-2 flex items-center justify-end gap-3 border-t border-stone-100 dark:border-stone-700/60">
                     <button type="button" onclick="closeEntryModal()" class="px-5 py-2 rounded-xl text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 transition">キャンセル</button>
                     <button type="submit" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 transition active:scale-95">保存する</button>
@@ -464,10 +445,9 @@
         </div>
     </div>
 
-    <!-- VIEW ENTRY DETAIL MODAL -->
+    <!-- VIEW DETAIL MODAL -->
     <div id="detailModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
         <div class="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-auto animate-fade-in">
-            <!-- Header bar -->
             <div class="p-6 pb-4 border-b border-stone-100 dark:border-stone-700/60 flex items-start justify-between gap-4">
                 <div>
                     <div class="flex items-center gap-2 text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
@@ -488,41 +468,16 @@
                 </div>
             </div>
 
-            <!-- Content body -->
-            <div class="p-6 space-y-6">
-                <!-- Tags -->
+            <div class="p-6 space-y-4">
                 <div id="detailTags" class="flex flex-wrap gap-1.5"></div>
-
-                <!-- Text Content -->
                 <div id="detailContent" class="text-sm text-stone-700 dark:text-stone-200 leading-relaxed whitespace-pre-wrap font-sans"></div>
-
-                <!-- Images preview -->
-                <div id="detailImages" class="grid grid-cols-2 gap-3"></div>
-
-                <!-- Audio memo player simulation -->
-                <div id="detailAudioMemo" class="hidden p-3 bg-brand-50 dark:bg-stone-700/50 rounded-2xl border border-brand-100 dark:border-stone-600 flex items-center gap-3">
-                    <button onclick="playDemoAudio(this)" class="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center text-sm shadow-md">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                    <div class="flex-1">
-                        <p class="text-xs font-bold text-stone-800 dark:text-stone-200">録音された音声メモ</p>
-                        <div class="w-full bg-stone-200 dark:bg-stone-600 h-1.5 rounded-full mt-1.5 overflow-hidden">
-                            <div class="bg-brand-600 h-full w-0 transition-all duration-300" id="audioProgressBar"></div>
-                        </div>
-                    </div>
-                    <span class="text-[10px] text-stone-400 font-mono">0:15</span>
-                </div>
             </div>
 
-            <!-- Footer Action Bar -->
             <div class="px-6 py-4 bg-stone-50 dark:bg-stone-800/80 border-t border-stone-100 dark:border-stone-700/60 flex items-center justify-between">
                 <button onclick="deleteCurrentDetailEntry()" class="px-3.5 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
                     <i class="fa-regular fa-trash-can"></i> 削除
                 </button>
                 <div class="flex items-center gap-2">
-                    <button onclick="exportCurrentDetailMarkdown()" class="px-3.5 py-1.5 border border-stone-200 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-xl text-xs font-medium transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-export"></i> MD出力
-                    </button>
                     <button onclick="editCurrentDetailEntry()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
                         <i class="fa-solid fa-pen"></i> 編集
                     </button>
@@ -541,7 +496,6 @@
                 </button>
             </div>
             <div class="p-6 space-y-6">
-                <!-- Lock Screen PIN Configuration -->
                 <div class="space-y-2">
                     <h4 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">セキュリティ設定</h4>
                     <div class="p-4 bg-stone-50 dark:bg-stone-700/50 rounded-2xl flex items-center justify-between">
@@ -553,124 +507,78 @@
                     </div>
                 </div>
 
-                <!-- Backup & Export -->
                 <div class="space-y-2">
-                    <h4 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">データのエクスポート & バックアップ</h4>
-                    <div class="space-y-2">
-                        <button onclick="exportAllJSON()" class="w-full p-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl border border-stone-200 dark:border-stone-600 text-left flex items-center justify-between transition">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-download text-brand-600"></i>
-                                <span class="text-xs font-bold text-stone-700 dark:text-stone-200">全データをJSON出力</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-stone-400 text-xs"></i>
-                        </button>
-                        <button onclick="importAllJSON()" class="w-full p-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl border border-stone-200 dark:border-stone-600 text-left flex items-center justify-between transition">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-upload text-brand-600"></i>
-                                <span class="text-xs font-bold text-stone-700 dark:text-stone-200">JSONデータを復元・読み込み</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-stone-400 text-xs"></i>
-                        </button>
-                        <input type="file" id="importJsonInput" accept=".json" onchange="processImportJson(event)" class="hidden">
-                    </div>
+                    <h4 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">データのエクスポート</h4>
+                    <button onclick="exportAllJSON()" class="w-full p-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl border border-stone-200 dark:border-stone-600 text-left flex items-center justify-between transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-download text-brand-600"></i>
+                            <span class="text-xs font-bold text-stone-700 dark:text-stone-200">全データをJSONバックアップ</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-400 text-xs"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-16 sm:bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        // Global Mood and Weather Configuration Options
         const MOODS = [
             { emoji: '😊', label: '晴れやか' },
             { emoji: '🌿', label: '穏やか' },
             { emoji: '☕', label: 'リラックス' },
             { emoji: '🌟', label: 'インスピレーション' },
-            { emoji: '🌧️', label: '憂鬱・しんみり' },
-            { emoji: '🔥', label: '意欲的・情熱' },
-            { emoji: '⚡', label: '忙しい・ストレス' }
+            { emoji: '🌧️', label: '憂鬱' },
+            { emoji: '🔥', label: '情熱' }
         ];
 
         const WEATHERS = [
             { icon: '☀️', label: '晴れ' },
             { icon: '☁️', label: '曇り' },
             { icon: '🌧️', label: '雨' },
-            { icon: '❄️', label: '雪' },
-            { icon: '⚡', label: '雷雨' }
+            { icon: '❄️', label: '雪' }
         ];
 
-        // State Object
         let state = {
             entries: [],
             currentView: 'timeline',
-            selectedMoodFilter: 'ALL',
             selectedTagFilter: 'ALL',
             searchQuery: '',
-            sortOrder: 'desc',
             calendarDate: new Date(),
             passcode: null,
             isLocked: false,
             enteredPin: '',
             activeDetailId: null,
-            editingImages: [],
-            editingVoiceMemo: false
+            pendingImports: []
         };
 
-        const DEMO_ENTRIES = [
+        const INITIAL_DEMO = [
             {
                 id: 'demo-1',
                 date: new Date().toISOString().split('T')[0],
-                title: '春風の強い午後にカフェで読書',
-                content: '午後から近所の小さなお気に入りの喫茶店へ足を運んだ。\nマスターが丁寧に淹れてくれた深煎りコーヒーを飲みながら、ずっと読みたかった小説を半分ほど読み進める。\n外は少し風が強かったけれど、店内には心地よいクラシック音楽が流れていて、本当に穏やかな時間を過ごせた。また週末に訪れたい。',
-                mood: '☕',
+                title: '日和日記へようこそ！',
+                content: '今日からこの日記アプリを使っていきましょう。\n他アプリからの移行は「移行」タブからTXTファイルを読み込ませるだけで一括登録できます。',
+                mood: '😊',
                 weather: '☀️',
-                tags: ['カフェ', '読書', '休日'],
-                images: ['https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&auto=format&fit=crop&q=80'],
-                hasVoiceMemo: true,
+                tags: ['日記', 'スタート'],
                 isFavorite: true,
                 createdAt: new Date().toISOString()
-            },
-            {
-                id: 'demo-2',
-                date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-                title: '新しい観葉植物を迎えた日',
-                content: 'フラワーショップで一目惚れしたモンステラの鉢植えを購入！\n部屋の窓際に飾ると、一気に空間がみずみずしく華やかになった気がする。\nこれから毎朝お水をあげるのが楽しみの一つになりそう。大切に育てていきたい。',
-                mood: '🌿',
-                weather: '☁️',
-                tags: ['観葉植物', 'インテリア', '買い物'],
-                images: ['https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format&fit=crop&q=80'],
-                hasVoiceMemo: false,
-                isFavorite: false,
-                createdAt: new Date(Date.now() - 86400000).toISOString()
-            },
-            {
-                id: 'demo-3',
-                date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0],
-                title: 'プロジェクトが無事にリリース！',
-                content: '数ヶ月間チームで準備を進めてきたWebサービスが本日正式リリースされた。\n直前まで不具合修正に追われてヒヤヒヤしたが、リリース後のユーザーの反応も上々で大きな達成感を感じている。\n夜はチームのみんなとオンライン乾杯。明日はゆっくり休もう。',
-                mood: '🌟',
-                weather: '☀️',
-                tags: ['仕事', '達成感', 'プロジェクト'],
-                images: [],
-                hasVoiceMemo: false,
-                isFavorite: true,
-                createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
             }
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
             loadFromStorage();
             if (state.entries.length === 0) {
-                state.entries = DEMO_ENTRIES;
+                state.entries = INITIAL_DEMO;
                 saveToStorage();
             }
             renderMoodSelectors();
             renderWeatherSelectors();
             switchView('timeline');
             updateStreakCount();
-            
+
             if (state.passcode) {
                 lockAppManually();
             }
@@ -678,14 +586,14 @@
 
         function loadFromStorage() {
             try {
-                const savedData = localStorage.getItem('hiyori_diary_data');
-                if (savedData) {
-                    const parsed = JSON.parse(savedData);
+                const saved = localStorage.getItem('hiyori_diary_data');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
                     state.entries = parsed.entries || [];
                     state.passcode = parsed.passcode || null;
                 }
             } catch (e) {
-                console.error('Storage load error', e);
+                console.error(e);
             }
         }
 
@@ -696,30 +604,23 @@
                     passcode: state.passcode
                 }));
             } catch (e) {
-                console.error('Storage save error', e);
+                console.error(e);
             }
         }
 
         function switchView(viewName) {
             state.currentView = viewName;
-            
-            // Hide all view panels
             document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
             
-            // Show target view panel
-            const targetView = document.getElementById(`view-${viewName}`);
-            if (targetView) targetView.classList.remove('hidden');
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) target.classList.remove('hidden');
 
-            // Update Desktop Nav styles
             document.querySelectorAll('.nav-tab').forEach(btn => {
                 btn.classList.remove('bg-white', 'dark:bg-stone-700', 'shadow-sm', 'text-brand-600', 'font-bold');
             });
             const activeNav = document.getElementById(`navBtn-${viewName}`);
-            if (activeNav) {
-                activeNav.classList.add('bg-white', 'dark:bg-stone-700', 'shadow-sm', 'text-brand-600', 'font-bold');
-            }
+            if (activeNav) activeNav.classList.add('bg-white', 'dark:bg-stone-700', 'shadow-sm', 'text-brand-600', 'font-bold');
 
-            // Update Mobile Nav styles
             document.querySelectorAll('[id^="mobileNav-"]').forEach(btn => {
                 btn.classList.remove('text-brand-600', 'dark:text-brand-400');
                 btn.classList.add('text-stone-400', 'dark:text-stone-500');
@@ -735,49 +636,215 @@
 
         function renderCurrentView() {
             renderTagCloud();
-            if (state.currentView === 'timeline') {
-                renderTimeline();
-            } else if (state.currentView === 'calendar') {
-                renderCalendar();
-            } else if (state.currentView === 'analytics') {
-                renderAnalytics();
-            } else if (state.currentView === 'favorites') {
-                renderFavorites();
+            if (state.currentView === 'timeline') renderTimeline();
+            else if (state.currentView === 'calendar') renderCalendar();
+            else if (state.currentView === 'analytics') renderAnalytics();
+        }
+
+        function parseDiaryText(text) {
+            const entries = [];
+            const lines = text.split(/\r?\n/);
+            const dateRegex = /^[\s\-_*#=]*((?:20\d{2}|19\d{2})[\/\.\-年]\s*\d{1,2}[\/\.\-月]\s*\d{1,2}日?(?:\s*[\(（][月火水木金土日]+[\)）])?)/;
+
+            let currentEntry = null;
+            let accumulatedLines = [];
+
+            const saveCurrent = () => {
+                if (currentEntry && accumulatedLines.length > 0) {
+                    const fullBody = accumulatedLines.join('\n').trim();
+                    if (fullBody) {
+                        const firstLine = accumulatedLines[0].trim();
+                        let title = '無題';
+                        let body = fullBody;
+
+                        if (firstLine.length > 0 && firstLine.length <= 30 && accumulatedLines.length > 1) {
+                            title = firstLine;
+                            body = accumulatedLines.slice(1).join('\n').trim();
+                        } else {
+                            title = fullBody.slice(0, 24).replace(/\n/g, ' ') + (fullBody.length > 24 ? '...' : '');
+                        }
+
+                        entries.push({
+                            ...currentEntry,
+                            title: title || '無題の日記',
+                            content: body || fullBody
+                        });
+                    }
+                }
+                accumulatedLines = [];
+            };
+
+            for (let line of lines) {
+                const trimmed = line.trim();
+                const isSeparator = /^[\-=_*]{3,}$/.test(trimmed);
+                const match = trimmed.match(dateRegex);
+
+                if (match) {
+                    saveCurrent();
+                    const detectedDate = extractDateStr(match[1]) || new Date().toISOString().split('T')[0];
+                    currentEntry = {
+                        id: `imp-${Date.now()}-${entries.length}`,
+                        date: detectedDate,
+                        mood: '😊',
+                        weather: '☀️',
+                        tags: ['移行データ'],
+                        isFavorite: false,
+                        createdAt: new Date(detectedDate).toISOString()
+                    };
+                    const rest = trimmed.replace(match[0], '').trim();
+                    if (rest) accumulatedLines.push(rest);
+                } else if (isSeparator) {
+                    saveCurrent();
+                    currentEntry = null;
+                } else {
+                    if (!currentEntry) {
+                        const fallbackDate = new Date().toISOString().split('T')[0];
+                        currentEntry = {
+                            id: `imp-${Date.now()}-${entries.length}`,
+                            date: fallbackDate,
+                            mood: '😊',
+                            weather: '☀️',
+                            tags: ['移行データ'],
+                            isFavorite: false,
+                            createdAt: new Date().toISOString()
+                        };
+                    }
+                    accumulatedLines.push(line);
+                }
             }
+            saveCurrent();
+            return entries;
+        }
+
+        function extractDateStr(str) {
+            if (!str) return null;
+            const matchJP = str.match(/(20\d{2}|19\d{2})[\/\.\-年]\s*(\d{1,2})[\/\.\-月]\s*(\d{1,2})/);
+            if (matchJP) {
+                const y = matchJP[1];
+                const m = String(parseInt(matchJP[2])).padStart(2, '0');
+                const d = String(parseInt(matchJP[3])).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            return null;
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            processFiles(files);
+        }
+
+        function handleFileDrop(e) {
+            e.preventDefault();
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length === 0) return;
+            processFiles(files);
+        }
+
+        async function processFiles(files) {
+            let allImports = [];
+            for (let file of files) {
+                const text = await file.text();
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ext === 'json') {
+                    try {
+                        const parsed = JSON.parse(text);
+                        if (Array.isArray(parsed)) allImports.push(...parsed);
+                    } catch (err) {}
+                } else {
+                    const parsed = parseDiaryText(text);
+                    allImports.push(...parsed);
+                }
+            }
+
+            if (allImports.length > 0) {
+                state.pendingImports = allImports;
+                renderImportPreview();
+                showToast(`${allImports.length}件の日記データを読み込みました`, 'success');
+            } else {
+                showToast('有効な日記データが見つかりませんでした', 'error');
+            }
+        }
+
+        function renderImportPreview() {
+            const container = document.getElementById('importPreviewContainer');
+            const list = document.getElementById('importPreviewList');
+            document.getElementById('importCount').innerText = state.pendingImports.length;
+
+            list.innerHTML = state.pendingImports.map(e => `
+                <div class="p-3 bg-stone-50 dark:bg-stone-700/50 rounded-xl border border-stone-200 dark:border-stone-600 text-xs">
+                    <div class="flex justify-between font-bold text-brand-700 dark:text-brand-300">
+                        <span>${e.date}</span>
+                        <span class="truncate max-w-[180px]">${escapeHTML(e.title)}</span>
+                    </div>
+                    <p class="text-stone-600 dark:text-stone-300 line-clamp-2 mt-1">${escapeHTML(e.content)}</p>
+                </div>
+            `).join('');
+
+            container.classList.remove('hidden');
+        }
+
+        function executeImport() {
+            if (state.pendingImports.length === 0) return;
+            state.entries = [...state.pendingImports, ...state.entries];
+            saveToStorage();
+            state.pendingImports = [];
+            document.getElementById('importPreviewContainer').classList.add('hidden');
+            showToast('インポートが完了しました！', 'success');
+            switchView('timeline');
+            updateStreakCount();
+        }
+
+        function cancelImport() {
+            state.pendingImports = [];
+            document.getElementById('importPreviewContainer').classList.add('hidden');
+        }
+
+        function loadSampleImportData() {
+            const sampleTxt = `2024/12/01(日)
+今日から新しい日記アプリを使い始めた。
+画面が見やすくていい感じ！
+
+----------------------------------------
+2024/12/05(木)
+冬の澄んだ空気が気持ちいい。
+カフェでココアを飲みながら読書した。
+
+----------------------------------------
+2024/12/15(日)
+大掃除を少しずつスタート。
+クローゼットを整理したら懐かしい写真が出てきた。
+
+----------------------------------------
+2024/12/24(火)
+クリスマスイブ。
+家族でケーキを食べてのんびり過ごした。
+
+----------------------------------------
+2025/01/01(水)
+あけましておめでとうございます！
+初詣でおみくじを引いたら「大吉」だった！
+`;
+            state.pendingImports = parseDiaryText(sampleTxt);
+            renderImportPreview();
+            showToast('サンプルデータ5件を展開しました', 'info');
         }
 
         function getFilteredEntries() {
             let filtered = [...state.entries];
-
-            // Filter by Mood
-            if (state.selectedMoodFilter !== 'ALL') {
-                filtered = filtered.filter(e => e.mood === state.selectedMoodFilter);
-            }
-
-            // Filter by Tag
             if (state.selectedTagFilter !== 'ALL') {
                 filtered = filtered.filter(e => e.tags && e.tags.includes(state.selectedTagFilter));
             }
-
-            // Search Keyword
             if (state.searchQuery.trim() !== '') {
-                const query = state.searchQuery.toLowerCase();
-                filtered = filtered.filter(e => 
-                    e.title.toLowerCase().includes(query) || 
-                    e.content.toLowerCase().includes(query) ||
-                    (e.tags && e.tags.some(t => t.toLowerCase().includes(query)))
-                );
+                const q = state.searchQuery.toLowerCase();
+                filtered = filtered.filter(e => e.title.toLowerCase().includes(q) || e.content.toLowerCase().includes(q));
             }
-
-            // Sorting
-            const sortSelect = document.getElementById('sortOrderSelect');
-            const sortVal = sortSelect ? sortSelect.value : 'desc';
+            const sortVal = document.getElementById('sortOrderSelect')?.value || 'desc';
             filtered.sort((a, b) => {
                 const dateA = new Date(a.date).getTime();
                 const dateB = new Date(b.date).getTime();
                 return sortVal === 'desc' ? dateB - dateA : dateA - dateB;
             });
-
             return filtered;
         }
 
@@ -789,92 +856,62 @@
             if (entries.length === 0) {
                 container.innerHTML = `
                     <div class="bg-white dark:bg-stone-800 rounded-3xl p-12 text-center border border-stone-200 dark:border-stone-700">
-                        <i class="fa-solid fa-feather-pointed text-4xl text-stone-300 dark:text-stone-600 mb-3"></i>
-                        <p class="text-sm font-bold text-stone-600 dark:text-stone-300">該当する日記が見つかりませんでした</p>
-                        <p class="text-xs text-stone-400 mt-1">検索条件を変更するか、新しい日記を書いてみましょう！</p>
+                        <i class="fa-solid fa-book-open text-4xl text-stone-300 dark:text-stone-600 mb-3"></i>
+                        <p class="text-sm font-bold text-stone-600 dark:text-stone-300">日記が見つかりませんでした</p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = entries.map(entry => createEntryCardHTML(entry)).join('');
-        }
-
-        function createEntryCardHTML(entry) {
-            const formattedDate = new Date(entry.date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-            const tagsHTML = (entry.tags || []).map(t => `<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-md text-[10px] font-medium">#${t}</span>`).join(' ');
-            const imagePreviewHTML = (entry.images && entry.images.length > 0) ? `
-                <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
-                    ${entry.images.map(img => `<img src="${img}" class="w-16 h-16 object-cover rounded-xl border border-stone-200 dark:border-stone-700" loading="lazy" />`).join('')}
-                </div>
-            ` : '';
-
-            return `
-                <div class="bg-white dark:bg-stone-800 rounded-3xl p-5 border border-stone-200/80 dark:border-stone-700/60 shadow-sm hover:shadow-md transition-all cursor-pointer animate-fade-in group" onclick="openDetailModal('${entry.id}')">
+            container.innerHTML = entries.map(e => `
+                <div class="bg-white dark:bg-stone-800 rounded-3xl p-5 border border-stone-200/80 dark:border-stone-700/60 shadow-sm hover:shadow-md transition cursor-pointer" onclick="openDetailModal('${e.id}')">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2 text-xs font-medium text-stone-500 dark:text-stone-400">
-                            <span>${formattedDate}</span>
+                            <span>${e.date}</span>
                             <span>•</span>
-                            <span>${entry.weather || '☀️'}</span>
-                            <span class="text-base ml-0.5">${entry.mood || '😊'}</span>
+                            <span>${e.weather || '☀️'}</span>
+                            <span class="text-base ml-0.5">${e.mood || '😊'}</span>
                         </div>
-                        <button onclick="event.stopPropagation(); toggleFavorite('${entry.id}')" class="text-stone-300 dark:text-stone-600 hover:text-amber-400 transition text-base">
-                            <i class="fa-solid fa-star ${entry.isFavorite ? 'text-amber-400' : ''}"></i>
+                        <button onclick="event.stopPropagation(); toggleFavorite('${e.id}')" class="text-stone-300 dark:text-stone-600 hover:text-amber-400 text-base">
+                            <i class="fa-solid fa-star ${e.isFavorite ? 'text-amber-400' : ''}"></i>
                         </button>
                     </div>
-                    <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100 mb-1.5 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">${escapeHTML(entry.title)}</h3>
-                    <p class="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed mb-3">${escapeHTML(entry.content)}</p>
-                    ${imagePreviewHTML}
-                    <div class="flex items-center justify-between mt-3 pt-2 border-t border-stone-100 dark:border-stone-700/50 text-[11px] text-stone-400">
-                        <div class="flex items-center gap-1.5 overflow-x-auto">
-                            ${tagsHTML}
+                    <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100 mb-1.5">${escapeHTML(e.title)}</h3>
+                    <p class="text-xs text-stone-600 dark:text-stone-300 line-clamp-3 leading-relaxed mb-3">${escapeHTML(e.content)}</p>
+                    ${e.tags && e.tags.length ? `
+                        <div class="flex flex-wrap gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-700/50">
+                            ${e.tags.map(t => `<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-md text-[10px]">#${t}</span>`).join('')}
                         </div>
-                        ${entry.hasVoiceMemo ? '<span class="text-brand-600 dark:text-brand-400 font-medium flex items-center gap-1"><i class="fa-solid fa-microphone text-[10px]"></i> 音声あり</span>' : ''}
-                    </div>
+                    ` : ''}
                 </div>
-            `;
+            `).join('');
         }
 
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthYearLabel = document.getElementById('calendarMonthYear');
-            
             const year = state.calendarDate.getFullYear();
             const month = state.calendarDate.getMonth();
-            
             monthYearLabel.innerText = `${year}年 ${month + 1}月`;
-            
+
             const firstDay = new Date(year, month, 1).getDay();
             const totalDays = new Date(year, month + 1, 0).getDate();
-            
             grid.innerHTML = '';
 
-            // Blank slots for previous month
             for (let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="h-20 bg-stone-50/50 dark:bg-stone-900/30 rounded-2xl border border-transparent"></div>`;
+                grid.innerHTML += `<div class="h-16 bg-stone-50/50 dark:bg-stone-900/30 rounded-2xl"></div>`;
             }
 
-            // Current Month Days
             const todayStr = new Date().toISOString().split('T')[0];
-            
             for (let day = 1; day <= totalDays; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const dayEntries = state.entries.filter(e => e.date === dateStr);
                 const isToday = dateStr === todayStr;
 
-                let contentDot = '';
-                if (dayEntries.length > 0) {
-                    const moodList = dayEntries.map(e => e.mood).join(' ');
-                    contentDot = `<div class="text-xs mt-1 truncate">${moodList}</div>`;
-                }
-
                 grid.innerHTML += `
-                    <div onclick="handleCalendarDayClick('${dateStr}')" class="h-20 p-1.5 rounded-2xl border ${isToday ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/20' : 'border-stone-200/60 dark:border-stone-700/60 bg-white dark:bg-stone-800'} hover:border-brand-400 transition cursor-pointer flex flex-col justify-between">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-stone-700 dark:text-stone-300'}">${day}</span>
-                            ${dayEntries.length > 0 ? `<span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>` : ''}
-                        </div>
-                        ${contentDot}
+                    <div onclick="handleCalendarClick('${dateStr}')" class="h-16 p-1 rounded-2xl border ${isToday ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/20' : 'border-stone-200/60 dark:border-stone-700/60 bg-white dark:bg-stone-800'} cursor-pointer flex flex-col justify-between">
+                        <span class="text-xs font-bold ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-stone-700 dark:text-stone-300'}">${day}</span>
+                        ${dayEntries.length > 0 ? `<div class="text-xs truncate">${dayEntries[0].mood || '😊'}</div>` : ''}
                     </div>
                 `;
             }
@@ -890,23 +927,18 @@
             renderCalendar();
         }
 
-        function handleCalendarDayClick(dateStr) {
+        function handleCalendarClick(dateStr) {
             const dayEntries = state.entries.filter(e => e.date === dateStr);
-            if (dayEntries.length > 0) {
-                openDetailModal(dayEntries[0].id);
-            } else {
-                openEntryEditor(dateStr);
-            }
+            if (dayEntries.length > 0) openDetailModal(dayEntries[0].id);
+            else openEntryEditor(dateStr);
         }
 
         function renderAnalytics() {
             const total = state.entries.length;
             const totalWords = state.entries.reduce((acc, curr) => acc + (curr.content ? curr.content.length : 0), 0);
-
             document.getElementById('statTotalEntries').innerText = `${total} 件`;
             document.getElementById('statTotalWords').innerText = `${totalWords.toLocaleString()} 字`;
 
-            // Calculate Top Mood
             const moodCounts = {};
             state.entries.forEach(e => {
                 if (e.mood) moodCounts[e.mood] = (moodCounts[e.mood] || 0) + 1;
@@ -922,7 +954,6 @@
             }
             document.getElementById('statTopMood').innerText = topMood;
 
-            // Render Chart Canvas
             drawMoodChart(moodCounts, total);
         }
 
@@ -935,26 +966,19 @@
             const legendContainer = document.getElementById('moodLegendContainer');
             legendContainer.innerHTML = '';
 
-            if (total === 0) {
-                ctx.fillStyle = '#d1b2a7';
-                ctx.font = '12px Noto Sans JP';
-                ctx.textAlign = 'center';
-                ctx.fillText('データがありません', 100, 105);
-                return;
-            }
+            if (total === 0) return;
 
-            const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#ef4444', '#14b8a6'];
+            const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#ef4444'];
             let startAngle = 0;
-            let colorIdx = 0;
+            let idx = 0;
 
-            for (const moodConfig of MOODS) {
-                const count = moodCounts[moodConfig.emoji] || 0;
+            for (const m of MOODS) {
+                const count = moodCounts[m.emoji] || 0;
                 if (count === 0) continue;
 
                 const sliceAngle = (count / total) * 2 * Math.PI;
-                const color = colors[colorIdx % colors.length];
+                const color = colors[idx % colors.length];
 
-                // Draw Donut Slice
                 ctx.beginPath();
                 ctx.arc(100, 100, 80, startAngle, startAngle + sliceAngle);
                 ctx.arc(100, 100, 50, startAngle + sliceAngle, startAngle, true);
@@ -963,37 +987,18 @@
                 ctx.fill();
 
                 startAngle += sliceAngle;
-                colorIdx++;
+                idx++;
 
-                // Add to legend
                 const pct = Math.round((count / total) * 100);
                 legendContainer.innerHTML += `
                     <div class="flex items-center gap-2 p-2 bg-stone-50 dark:bg-stone-700/40 rounded-xl border border-stone-200/60 dark:border-stone-600">
                         <span class="w-3 h-3 rounded-full" style="background-color: ${color}"></span>
-                        <span class="text-base">${moodConfig.emoji}</span>
-                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200">${moodConfig.label}</span>
+                        <span class="text-base">${m.emoji}</span>
+                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200">${m.label}</span>
                         <span class="text-xs text-stone-400 ml-auto">${pct}%</span>
                     </div>
                 `;
             }
-        }
-
-        function renderFavorites() {
-            const container = document.getElementById('favoritesContainer');
-            const favs = state.entries.filter(e => e.isFavorite);
-
-            if (favs.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white dark:bg-stone-800 rounded-3xl p-12 text-center border border-stone-200 dark:border-stone-700">
-                        <i class="fa-solid fa-star text-4xl text-stone-300 dark:text-stone-600 mb-3"></i>
-                        <p class="text-sm font-bold text-stone-600 dark:text-stone-300">お気に入りの日記はまだありません</p>
-                        <p class="text-xs text-stone-400 mt-1">カードの星マークをクリックして追加できます。</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = favs.map(e => createEntryCardHTML(e)).join('');
         }
 
         function renderTagCloud() {
@@ -1002,15 +1007,15 @@
             state.entries.forEach(e => (e.tags || []).forEach(t => tagSet.add(t)));
 
             if (tagSet.size === 0) {
-                container.innerHTML = `<span class="text-xs text-stone-400">タグは未登録です</span>`;
+                container.innerHTML = `<span class="text-xs text-stone-400">タグ未登録</span>`;
                 return;
             }
 
             let html = '';
             tagSet.forEach(tag => {
-                const isSelected = state.selectedTagFilter === tag;
+                const isSel = state.selectedTagFilter === tag;
                 html += `
-                    <button onclick="filterByTag('${tag}')" class="px-2.5 py-1 rounded-xl text-xs font-medium transition ${isSelected ? 'bg-brand-600 text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200'}">
+                    <button onclick="filterByTag('${tag}')" class="px-2.5 py-1 rounded-xl text-xs font-medium transition ${isSel ? 'bg-brand-600 text-white' : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300'}">
                         #${tag}
                     </button>
                 `;
@@ -1023,46 +1028,21 @@
             renderCurrentView();
         }
 
-        function filterByMood(mood) {
-            state.selectedMoodFilter = mood;
-            document.querySelectorAll('#moodFilterGrid button').forEach(btn => {
-                btn.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
-            });
-            const activeBtn = document.getElementById(`moodFilter-${mood}`);
-            if (activeBtn) {
-                activeBtn.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
-            }
-            renderCurrentView();
-        }
-
-        function handleSearch(val) {
-            state.searchQuery = val;
-            const clearBtn = document.getElementById('clearSearchBtn');
-            if (val.trim()) clearBtn.classList.remove('hidden');
-            else clearBtn.classList.add('hidden');
-            renderCurrentView();
-        }
-
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            handleSearch('');
-        }
-
         function renderMoodSelectors() {
-            const container = document.getElementById('modalMoodSelector');
-            container.innerHTML = MOODS.map((m, idx) => `
-                <button type="button" onclick="selectModalMood('${m.emoji}')" id="modalMood-${m.emoji}" class="mood-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base transition flex items-center gap-1 hover:border-brand-400 ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
-                    <span>${m.emoji}</span>
+            const c = document.getElementById('modalMoodSelector');
+            c.innerHTML = MOODS.map((m, idx) => `
+                <button type="button" onclick="selectModalMood('${m.emoji}')" id="modalMood-${m.emoji}" class="mood-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
+                    ${m.emoji}
                 </button>
             `).join('');
             state.selectedModalMood = MOODS[0].emoji;
         }
 
         function renderWeatherSelectors() {
-            const container = document.getElementById('modalWeatherSelector');
-            container.innerHTML = WEATHERS.map((w, idx) => `
-                <button type="button" onclick="selectModalWeather('${w.icon}')" id="modalWeather-${w.icon}" class="weather-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base transition hover:border-brand-400 ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
-                    <span>${w.icon}</span>
+            const c = document.getElementById('modalWeatherSelector');
+            c.innerHTML = WEATHERS.map((w, idx) => `
+                <button type="button" onclick="selectModalWeather('${w.icon}')" id="modalWeather-${w.icon}" class="weather-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
+                    ${w.icon}
                 </button>
             `).join('');
             state.selectedModalWeather = WEATHERS[0].icon;
@@ -1082,23 +1062,16 @@
             if (btn) btn.classList.add('bg-brand-100', 'border-brand-500');
         }
 
-        function openEntryEditor(targetDateStr = null) {
+        function openEntryEditor(targetDate = null) {
             document.getElementById('editEntryId').value = '';
             document.getElementById('entryTitleInput').value = '';
             document.getElementById('entryContentInput').value = '';
             document.getElementById('entryTagsInput').value = '';
-            document.getElementById('entryDateInput').value = targetDateStr || new Date().toISOString().split('T')[0];
+            document.getElementById('entryDateInput').value = targetDate || new Date().toISOString().split('T')[0];
             document.getElementById('modalHeaderTitle').innerText = '新しい日記を書く';
-            
-            state.editingImages = [];
-            state.editingVoiceMemo = false;
-            renderImagePreviews();
-            document.getElementById('voiceMemoBadge').classList.add('hidden');
-
             selectModalMood('😊');
             selectModalWeather('☀️');
             updateCharCount();
-
             document.getElementById('entryModal').classList.remove('hidden');
         }
 
@@ -1111,66 +1084,6 @@
             document.getElementById('charCounter').innerText = `${txt.length} 文字`;
         }
 
-        function insertFormatting(prefix, suffix) {
-            const textarea = document.getElementById('entryContentInput');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = textarea.value;
-            const selectedText = text.substring(start, end);
-            const replacement = prefix + selectedText + suffix;
-            
-            textarea.value = text.substring(0, start) + replacement + text.substring(end);
-            textarea.focus();
-            textarea.selectionStart = start + prefix.length;
-            textarea.selectionEnd = end + prefix.length;
-            updateCharCount();
-        }
-
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                state.editingImages.push(evt.target.result);
-                renderImagePreviews();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function renderImagePreviews() {
-            const area = document.getElementById('imagePreviewArea');
-            area.innerHTML = state.editingImages.map((img, i) => `
-                <div class="relative w-16 h-16 rounded-xl border border-stone-200 overflow-hidden group">
-                    <img src="${img}" class="w-full h-full object-cover" />
-                    <button type="button" onclick="removeImage(${i})" class="absolute top-1 right-1 w-5 h-5 bg-stone-900/70 text-white rounded-full text-[10px] flex items-center justify-center">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function removeImage(idx) {
-            state.editingImages.splice(idx, 1);
-            renderImagePreviews();
-        }
-
-        function toggleVoiceMemoDemo() {
-            state.editingVoiceMemo = !state.editingVoiceMemo;
-            const badge = document.getElementById('voiceMemoBadge');
-            if (state.editingVoiceMemo) {
-                badge.classList.remove('hidden');
-                badge.classList.add('flex');
-                showToast('音声メモが添付されました', 'success');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        function removeVoiceMemo() {
-            state.editingVoiceMemo = false;
-            document.getElementById('voiceMemoBadge').classList.add('hidden');
-        }
-
         function saveEntry(e) {
             e.preventDefault();
             const editId = document.getElementById('editEntryId').value;
@@ -1178,11 +1091,9 @@
             const date = document.getElementById('entryDateInput').value;
             const content = document.getElementById('entryContentInput').value.trim();
             const tagsRaw = document.getElementById('entryTagsInput').value;
-
             const tags = tagsRaw.split(/[,、]/).map(t => t.trim()).filter(t => t.length > 0);
 
             if (editId) {
-                // Update existing
                 const entry = state.entries.find(item => item.id === editId);
                 if (entry) {
                     entry.title = title;
@@ -1191,12 +1102,9 @@
                     entry.mood = state.selectedModalMood;
                     entry.weather = state.selectedModalWeather;
                     entry.tags = tags;
-                    entry.images = state.editingImages;
-                    entry.hasVoiceMemo = state.editingVoiceMemo;
                 }
                 showToast('日記を更新しました', 'success');
             } else {
-                // Create new
                 const newEntry = {
                     id: 'entry-' + Date.now(),
                     date,
@@ -1205,8 +1113,6 @@
                     mood: state.selectedModalMood,
                     weather: state.selectedModalWeather,
                     tags,
-                    images: state.editingImages,
-                    hasVoiceMemo: state.editingVoiceMemo,
                     isFavorite: false,
                     createdAt: new Date().toISOString()
                 };
@@ -1226,30 +1132,16 @@
 
             state.activeDetailId = id;
             document.getElementById('detailTitle').innerText = entry.title;
-            document.getElementById('detailDate').innerText = new Date(entry.date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+            document.getElementById('detailDate').innerText = entry.date;
             document.getElementById('detailWeather').innerText = `${entry.weather || '☀️'}`;
             document.getElementById('detailMoodEmoji').innerText = entry.mood || '😊';
             document.getElementById('detailContent').innerText = entry.content;
 
-            // Fav icon
             const favBtn = document.getElementById('detailFavBtn');
             favBtn.innerHTML = `<i class="fa-solid fa-star ${entry.isFavorite ? 'text-amber-400' : ''}"></i>`;
 
-            // Tags
             const tagsDiv = document.getElementById('detailTags');
             tagsDiv.innerHTML = (entry.tags || []).map(t => `<span class="px-2.5 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-md text-xs font-medium">#${t}</span>`).join('');
-
-            // Images
-            const imgsDiv = document.getElementById('detailImages');
-            imgsDiv.innerHTML = (entry.images || []).map(img => `<img src="${img}" class="w-full h-48 object-cover rounded-2xl border border-stone-200 dark:border-stone-700" />`).join('');
-
-            // Audio memo
-            const audioDiv = document.getElementById('detailAudioMemo');
-            if (entry.hasVoiceMemo) {
-                audioDiv.classList.remove('hidden');
-            } else {
-                audioDiv.classList.add('hidden');
-            }
 
             document.getElementById('detailModal').classList.remove('hidden');
         }
@@ -1282,29 +1174,15 @@
             if (!entry) return;
 
             closeDetailModal();
-
             document.getElementById('editEntryId').value = entry.id;
             document.getElementById('entryTitleInput').value = entry.title;
             document.getElementById('entryDateInput').value = entry.date;
             document.getElementById('entryContentInput').value = entry.content;
             document.getElementById('entryTagsInput').value = (entry.tags || []).join(', ');
             document.getElementById('modalHeaderTitle').innerText = '日記を編集';
-
-            state.editingImages = [...(entry.images || [])];
-            state.editingVoiceMemo = !!entry.hasVoiceMemo;
-            renderImagePreviews();
-
-            const badge = document.getElementById('voiceMemoBadge');
-            if (state.editingVoiceMemo) {
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-
             selectModalMood(entry.mood || '😊');
             selectModalWeather(entry.weather || '☀️');
             updateCharCount();
-
             document.getElementById('entryModal').classList.remove('hidden');
         }
 
@@ -1318,14 +1196,17 @@
             showToast('日記を削除しました', 'info');
         }
 
-        function playDemoAudio(btn) {
-            const bar = document.getElementById('audioProgressBar');
-            btn.innerHTML = `<i class="fa-solid fa-pause"></i>`;
-            bar.style.width = '100%';
-            setTimeout(() => {
-                btn.innerHTML = `<i class="fa-solid fa-play"></i>`;
-                bar.style.width = '0%';
-            }, 3000);
+        function handleSearch(val) {
+            state.searchQuery = val;
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (val.trim()) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+            renderCurrentView();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            handleSearch('');
         }
 
         function updateStreakCount() {
@@ -1333,7 +1214,6 @@
                 document.getElementById('streakCount').innerText = '0';
                 return;
             }
-
             const dates = Array.from(new Set(state.entries.map(e => e.date))).sort().reverse();
             let streak = 0;
             let checkDate = new Date();
@@ -1347,7 +1227,6 @@
                     break;
                 }
             }
-
             document.getElementById('streakCount').innerText = streak || 1;
         }
 
@@ -1364,9 +1243,7 @@
                 state.enteredPin += num;
                 updatePinDots();
             }
-            if (state.enteredPin.length === 4) {
-                verifyPin();
-            }
+            if (state.enteredPin.length === 4) verifyPin();
         }
 
         function backspacePin() {
@@ -1416,7 +1293,7 @@
 
         function togglePasscodeSetting(enabled) {
             if (enabled) {
-                state.passcode = '1234'; // default PIN
+                state.passcode = '1234';
                 showToast('パスコード(初期: 1234)を有効化しました', 'success');
             } else {
                 state.passcode = null;
@@ -1427,53 +1304,13 @@
 
         function exportAllJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.entries, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `hiyori_diary_backup_${new Date().toISOString().split('T')[0]}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showToast('JSONデータをダウンロードしました', 'success');
-        }
-
-        function importAllJSON() {
-            document.getElementById('importJsonInput').click();
-        }
-
-        function processImportJson(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const imported = JSON.parse(evt.target.result);
-                    if (Array.isArray(imported)) {
-                        state.entries = imported;
-                        saveToStorage();
-                        renderCurrentView();
-                        closeSettingsModal();
-                        showToast('データを正常に復元しました', 'success');
-                    }
-                } catch (err) {
-                    showToast('無効なファイル形式です', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function exportCurrentDetailMarkdown() {
-            if (!state.activeDetailId) return;
-            const entry = state.entries.find(e => e.id === state.activeDetailId);
-            if (!entry) return;
-
-            const mdContent = `# ${entry.title}\n\n**日付:** ${entry.date}\n**天気:** ${entry.weather || ''} | **気分:** ${entry.mood || ''}\n**タグ:** ${(entry.tags || []).join(', ')}\n\n---\n\n${entry.content}`;
-            const blob = new Blob([mdContent], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `${entry.date}_${entry.title}.md`;
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", `hiyori_diary_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(a);
             a.click();
-            showToast('Markdownファイルを書き出しました', 'success');
+            a.remove();
+            showToast('JSONデータを保存しました', 'success');
         }
 
         function toggleDarkMode() {
@@ -1491,14 +1328,12 @@
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            
             let bg = 'bg-stone-800 text-white';
             if (type === 'success') bg = 'bg-emerald-600 text-white';
             if (type === 'error') bg = 'bg-red-600 text-white';
 
             toast.className = `px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2 ${bg} animate-fade-in pointer-events-auto transition-all`;
             toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${message}`;
-            
             container.appendChild(toast);
             setTimeout(() => {
                 toast.classList.add('opacity-0');
