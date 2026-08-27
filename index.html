@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日和日記 - Hiyori Diary</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fdf8f6',
+                            100: '#f2e8e5',
+                            200: '#e8d5cf',
+                            300: '#d1b2a7',
+                            400: '#b88c7d',
+                            500: '#a36d5c',
+                            600: '#8c5343',
+                            700: '#734032',
+                            800: '#5e3428',
+                            900: '#4e2d24',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                        rounded: ['"Zen Maru Gothic"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #faf7f5;
+            color: #332d2b;
+        }
+        .dark body {
+            background-color: #1a1615;
+            color: #ece6e4;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1b2a7;
+            border-radius: 9999px;
+        }
+        .dark ::webkit-scrollbar-thumb {
+            background: #5e3428;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col antialiased selection:bg-brand-200 selection:text-brand-900 dark:selection:bg-brand-800 dark:selection:text-brand-100 transition-colors duration-200">
+
+    <!-- Lock Screen Modal -->
+    <div id="lockScreenModal" class="hidden fixed inset-0 z-50 bg-stone-900/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-stone-800 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center border border-stone-200 dark:border-stone-700 animate-fade-in">
+            <div class="w-16 h-16 bg-brand-100 dark:bg-stone-700 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-600 dark:text-brand-300 text-2xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold font-rounded mb-1 text-stone-800 dark:text-stone-100">日和日記はロックされています</h2>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mb-6">設定した4桁のパスコードを入力してください</p>
+            
+            <div class="flex justify-center gap-3 mb-6" id="pinDisplay">
+                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
+                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
+                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
+                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 max-w-[240px] mx-auto mb-4">
+                <button onclick="appendPin('1')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">1</button>
+                <button onclick="appendPin('2')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">2</button>
+                <button onclick="appendPin('3')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">3</button>
+                <button onclick="appendPin('4')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">4</button>
+                <button onclick="appendPin('5')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">5</button>
+                <button onclick="appendPin('6')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">6</button>
+                <button onclick="appendPin('7')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">7</button>
+                <button onclick="appendPin('8')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">8</button>
+                <button onclick="appendPin('9')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">9</button>
+                <button onclick="clearPin()" class="py-3 text-stone-400 hover:text-red-500 rounded-xl text-sm font-medium transition">クリア</button>
+                <button onclick="appendPin('0')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">0</button>
+                <button onclick="backspacePin()" class="py-3 text-stone-500 dark:text-stone-400 rounded-xl text-lg transition"><i class="fa-solid fa-backspace"></i></button>
+            </div>
+            <p id="pinErrorMsg" class="text-xs text-red-500 min-h-[16px] font-medium"></p>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('timeline')">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-book-open text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold font-rounded text-stone-800 dark:text-stone-100 tracking-tight leading-none">日和日記</h1>
+                    <span class="text-[10px] text-brand-600 dark:text-brand-400 font-medium tracking-wider uppercase">Hiyori Personal Journal</span>
+                </div>
+            </div>
+
+            <!-- View Navigation Switcher (Desktop) -->
+            <nav class="hidden md:flex items-center gap-1 bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl border border-stone-200/60 dark:border-stone-700/50">
+                <button onclick="switchView('timeline')" id="navBtn-timeline" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
+                    <i class="fa-solid fa-list-ul"></i> タイムライン
+                </button>
+                <button onclick="switchView('calendar')" id="navBtn-calendar" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
+                    <i class="fa-regular fa-calendar-days"></i> カレンダー
+                </button>
+                <button onclick="switchView('analytics')" id="navBtn-analytics" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
+                    <i class="fa-solid fa-chart-pie"></i> 振り返り・分析
+                </button>
+                <button onclick="switchView('favorites')" id="navBtn-favorites" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
+                    <i class="fa-solid fa-star text-amber-400"></i> お気に入り
+                </button>
+            </nav>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2">
+                <!-- Lock App Button -->
+                <button onclick="lockAppManually()" id="manualLockBtn" title="日記をロック" class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </button>
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" title="テーマ切替" class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition">
+                    <i class="fa-solid fa-moon dark:hidden text-sm"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400 text-sm"></i>
+                </button>
+                <!-- Settings Button -->
+                <button onclick="openSettingsModal()" title="設定" class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition">
+                    <i class="fa-solid fa-gear text-sm"></i>
+                </button>
+                <!-- New Entry Button -->
+                <button onclick="openEntryEditor()" class="ml-1 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 flex items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    <span class="hidden sm:inline">日記をかく</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-2 flex justify-around items-center">
+        <button onclick="switchView('timeline')" id="mobileNav-timeline" class="flex flex-col items-center gap-1 text-xs font-medium text-brand-600 dark:text-brand-400">
+            <i class="fa-solid fa-list-ul text-lg"></i>
+            <span>一覧</span>
+        </button>
+        <button onclick="switchView('calendar')" id="mobileNav-calendar" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
+            <i class="fa-regular fa-calendar-days text-lg"></i>
+            <span>カレンダー</span>
+        </button>
+        <button onclick="openEntryEditor()" class="w-12 h-12 -mt-5 rounded-full bg-brand-600 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-600/40 active:scale-90 transition">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        <button onclick="switchView('analytics')" id="mobileNav-analytics" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
+            <i class="fa-solid fa-chart-pie text-lg"></i>
+            <span>分析</span>
+        </button>
+        <button onclick="switchView('favorites')" id="mobileNav-favorites" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
+            <i class="fa-solid fa-star text-lg"></i>
+            <span>お気に入り</span>
+        </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar (Search, Stats, Tag Filters) -->
+            <aside class="space-y-6 lg:col-span-1">
+                <!-- Search Input -->
+                <div class="bg-white dark:bg-stone-800/80 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
+                    <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2">検索</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="キーワードや出来事..." class="w-full pl-9 pr-8 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-xs focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Writing Streak & Quick Stats Widget -->
+                <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl p-5 text-white shadow-lg shadow-brand-600/15 relative overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 text-white/10 text-8xl font-black pointer-events-none select-none">🔥</div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-medium text-brand-100 uppercase tracking-wider">継続記録</span>
+                        <span class="px-2 py-0.5 bg-white/20 rounded-full text-[10px] font-bold tracking-wide">ACTIVE</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="streakCount" class="text-4xl font-extrabold font-rounded">1</span>
+                        <span class="text-sm text-brand-100">日連続で記録中</span>
+                    </div>
+                    <p id="streakMessage" class="text-xs text-brand-100/90 mt-2 leading-relaxed">素晴らしいペースです！日々の思考を言葉に残しましょう。</p>
+                </div>
+
+                <!-- Tag Cloud & Filter -->
+                <div class="bg-white dark:bg-stone-800/80 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">タグで絞り込み</h3>
+                        <button onclick="filterByTag('ALL')" class="text-[11px] text-brand-600 dark:text-brand-400 hover:underline">すべて表示</button>
+                    </div>
+                    <div id="tagCloudContainer" class="flex flex-wrap gap-1.5">
+                        <!-- Dynamic Tags rendered here -->
+                    </div>
+                </div>
+
+                <!-- Mood Quick Selector Filter -->
+                <div class="bg-white dark:bg-stone-800/80 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
+                    <h3 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-3">気分でフィルター</h3>
+                    <div class="grid grid-cols-4 gap-2 text-center" id="moodFilterGrid">
+                        <button onclick="filterByMood('ALL')" id="moodFilter-ALL" class="p-2 rounded-xl border border-brand-500 bg-brand-50 dark:bg-stone-700 text-xs font-medium transition">全気分</button>
+                        <button onclick="filterByMood('😊')" id="moodFilter-😊" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">😊</button>
+                        <button onclick="filterByMood('🌿')" id="moodFilter-🌿" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🌿</button>
+                        <button onclick="filterByMood('☕')" id="moodFilter-☕" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">☕</button>
+                        <button onclick="filterByMood('🌟')" id="moodFilter-🌟" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🌟</button>
+                        <button onclick="filterByMood('🌧️')" id="moodFilter-🌧️" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🌧️</button>
+                        <button onclick="filterByMood('🔥')" id="moodFilter-🔥" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">🔥</button>
+                        <button onclick="filterByMood('⚡')" id="moodFilter-⚡" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 text-lg transition">⚡</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Dynamic Content View Area (Timeline, Calendar, Analytics, Favorites) -->
+            <section class="lg:col-span-3 space-y-6">
+
+                <!-- 1. TIMELINE / LIST VIEW -->
+                <div id="view-timeline" class="view-content space-y-4">
+                    <div class="flex items-center justify-between pb-2">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold font-rounded text-stone-800 dark:text-stone-100" id="timelineTitle">日記一覧</h2>
+                            <span id="entryCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-800 dark:bg-stone-800 dark:text-brand-300">0件</span>
+                        </div>
+                        <!-- Sort order switch -->
+                        <div class="flex items-center gap-2 text-xs text-stone-500">
+                            <span>並び順:</span>
+                            <select id="sortOrderSelect" onchange="renderCurrentView()" class="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg px-2 py-1 text-xs text-stone-700 dark:text-stone-300 focus:outline-none">
+                                <option value="desc">新しい順</option>
+                                <option value="asc">古い順</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Entries List Container -->
+                    <div id="entriesContainer" class="space-y-4">
+                        <!-- Entries render here -->
+                    </div>
+                </div>
+
+                <!-- 2. CALENDAR VIEW -->
+                <div id="view-calendar" class="view-content hidden space-y-4">
+                    <div class="bg-white dark:bg-stone-800 rounded-3xl p-6 border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
+                        <!-- Calendar Header Controller -->
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 id="calendarMonthYear" class="text-xl font-bold font-rounded text-stone-800 dark:text-stone-100">2026年 8月</h2>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeCalendarMonth(-1)" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 transition">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <button onclick="resetCalendarToToday()" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 transition">今日</button>
+                                <button onclick="changeCalendarMonth(1)" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 transition">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Calendar Grid -->
+                        <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-bold text-stone-400">
+                            <div class="py-2 text-red-500">日</div>
+                            <div class="py-2">月</div>
+                            <div class="py-2">火</div>
+                            <div class="py-2">水</div>
+                            <div class="py-2">木</div>
+                            <div class="py-2">金</div>
+                            <div class="py-2 text-blue-500">土</div>
+                        </div>
+                        <div id="calendarGrid" class="grid grid-cols-7 gap-1 md:gap-2">
+                            <!-- Days rendered via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ANALYTICS VIEW -->
+                <div id="view-analytics" class="view-content hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white dark:bg-stone-800 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-stone-400 font-medium">総執筆エントリー</p>
+                                <p id="statTotalEntries" class="text-2xl font-bold font-rounded text-stone-800 dark:text-stone-100">0 件</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-stone-800 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-font"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-stone-400 font-medium">累積文字数</p>
+                                <p id="statTotalWords" class="text-2xl font-bold font-rounded text-stone-800 dark:text-stone-100">0 字</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-stone-800 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-face-smile"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-stone-400 font-medium">最多の気分</p>
+                                <p id="statTopMood" class="text-2xl font-bold font-rounded text-stone-800 dark:text-stone-100">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mood Distribution Chart Card -->
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
+                        <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100 mb-4">気分の分布と傾向</h3>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <div class="w-48 h-48 relative flex items-center justify-center">
+                                <canvas id="moodChartCanvas" width="200" height="200"></canvas>
+                            </div>
+                            <div id="moodLegendContainer" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
+                                <!-- Mood Legend Items rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. FAVORITES VIEW -->
+                <div id="view-favorites" class="view-content hidden space-y-4">
+                    <div class="flex items-center gap-2 pb-2">
+                        <i class="fa-solid fa-star text-amber-400 text-xl"></i>
+                        <h2 class="text-lg font-bold font-rounded text-stone-800 dark:text-stone-100">お気に入りの日記</h2>
+                    </div>
+                    <div id="favoritesContainer" class="space-y-4">
+                        <!-- Favorites list -->
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- CREATE / EDIT DIARY ENTRY MODAL -->
+    <div id="entryModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-auto animate-fade-in">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-stone-100 dark:border-stone-700/60 flex items-center justify-between bg-stone-50/50 dark:bg-stone-800">
+                <h3 id="modalHeaderTitle" class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100">新しい日記を書く</h3>
+                <button onclick="closeEntryModal()" class="w-8 h-8 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 transition flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="entryForm" onsubmit="saveEntry(event)" class="p-6 space-y-5">
+                <input type="hidden" id="editEntryId" value="">
+
+                <!-- Title & Date Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">タイトル</label>
+                        <input type="text" id="entryTitleInput" required placeholder="今日を一言で表すと...?" class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">日付</label>
+                        <input type="date" id="entryDateInput" required class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
+                    </div>
+                </div>
+
+                <!-- Mood & Weather Pickers -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">今日の気分</label>
+                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalMoodSelector">
+                            <!-- Dynamic Mood Buttons -->
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">天気</label>
+                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalWeatherSelector">
+                            <!-- Dynamic Weather Buttons -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags Input -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">タグ (カンマ区切り)</label>
+                    <input type="text" id="entryTagsInput" placeholder="カフェ, 読書, 仕事, 散歩" class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
+                </div>
+
+                <!-- Rich Content Textarea -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">本文</label>
+                        <span id="charCounter" class="text-[11px] text-stone-400">0 文字</span>
+                    </div>
+                    <!-- Editor Quick Formatting Toolbar -->
+                    <div class="flex items-center gap-1 mb-2 p-1 bg-stone-100 dark:bg-stone-700/50 rounded-lg text-stone-600 dark:text-stone-300 text-xs">
+                        <button type="button" onclick="insertFormatting('**', '**')" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded transition" title="太字"><i class="fa-solid fa-bold"></i></button>
+                        <button type="button" onclick="insertFormatting('・ ', '')" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded transition" title="箇条書き"><i class="fa-solid fa-list-ul"></i></button>
+                        <button type="button" onclick="insertFormatting('「', '」')" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded transition" title="かぎかっこ"><i class="fa-solid fa-quote-left"></i></button>
+                        <button type="button" onclick="toggleVoiceMemoDemo()" id="voiceMemoBtn" class="p-1.5 hover:bg-white dark:hover:bg-stone-600 rounded text-brand-600 dark:text-brand-400 transition ml-auto flex items-center gap-1">
+                            <i class="fa-solid fa-microphone"></i> 音声メモ添付
+                        </button>
+                    </div>
+                    <textarea id="entryContentInput" rows="7" required oninput="updateCharCount()" placeholder="今日はどんな一日でしたか？感じたことや考えたことを自由に書き留めてみましょう..." class="w-full px-3.5 py-2.5 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 leading-relaxed transition"></textarea>
+                </div>
+
+                <!-- Image Attachment Section -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">写真を添える</label>
+                    <div class="flex items-center gap-3">
+                        <label class="cursor-pointer px-4 py-2 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                            <i class="fa-regular fa-image text-brand-600"></i> 画像を選択
+                            <input type="file" accept="image/*" id="imageFileInput" onchange="handleImageUpload(event)" class="hidden">
+                        </label>
+                        <span class="text-[11px] text-stone-400">※プレビュー表示されます</span>
+                    </div>
+                    <div id="imagePreviewArea" class="mt-3 flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Voice memo indicator badge -->
+                <div id="voiceMemoBadge" class="hidden items-center justify-between p-2.5 bg-brand-50 dark:bg-stone-700/60 rounded-xl border border-brand-200 dark:border-stone-600 text-xs">
+                    <div class="flex items-center gap-2 text-brand-800 dark:text-brand-300">
+                        <i class="fa-solid fa-microphone text-brand-600 animate-pulse"></i>
+                        <span>音声メモが添付されています (0:15)</span>
+                    </div>
+                    <button type="button" onclick="removeVoiceMemo()" class="text-stone-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button>
+                </div>
+
+                <!-- Modal Actions Footer -->
+                <div class="pt-2 flex items-center justify-end gap-3 border-t border-stone-100 dark:border-stone-700/60">
+                    <button type="button" onclick="closeEntryModal()" class="px-5 py-2 rounded-xl text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 transition">キャンセル</button>
+                    <button type="submit" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 transition active:scale-95">保存する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VIEW ENTRY DETAIL MODAL -->
+    <div id="detailModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-auto animate-fade-in">
+            <!-- Header bar -->
+            <div class="p-6 pb-4 border-b border-stone-100 dark:border-stone-700/60 flex items-start justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
+                        <span id="detailDate">2026年8月27日</span>
+                        <span>•</span>
+                        <span id="detailWeather">☀️ 晴れ</span>
+                        <span id="detailMoodEmoji" class="text-base ml-1">😊</span>
+                    </div>
+                    <h2 id="detailTitle" class="text-xl font-bold font-rounded text-stone-800 dark:text-stone-100 leading-snug">日記のタイトル</h2>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button id="detailFavBtn" onclick="toggleFavoriteFromDetail()" class="w-8 h-8 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400 hover:text-amber-400 transition flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-star"></i>
+                    </button>
+                    <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 transition flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content body -->
+            <div class="p-6 space-y-6">
+                <!-- Tags -->
+                <div id="detailTags" class="flex flex-wrap gap-1.5"></div>
+
+                <!-- Text Content -->
+                <div id="detailContent" class="text-sm text-stone-700 dark:text-stone-200 leading-relaxed whitespace-pre-wrap font-sans"></div>
+
+                <!-- Images preview -->
+                <div id="detailImages" class="grid grid-cols-2 gap-3"></div>
+
+                <!-- Audio memo player simulation -->
+                <div id="detailAudioMemo" class="hidden p-3 bg-brand-50 dark:bg-stone-700/50 rounded-2xl border border-brand-100 dark:border-stone-600 flex items-center gap-3">
+                    <button onclick="playDemoAudio(this)" class="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center text-sm shadow-md">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <div class="flex-1">
+                        <p class="text-xs font-bold text-stone-800 dark:text-stone-200">録音された音声メモ</p>
+                        <div class="w-full bg-stone-200 dark:bg-stone-600 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                            <div class="bg-brand-600 h-full w-0 transition-all duration-300" id="audioProgressBar"></div>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-stone-400 font-mono">0:15</span>
+                </div>
+            </div>
+
+            <!-- Footer Action Bar -->
+            <div class="px-6 py-4 bg-stone-50 dark:bg-stone-800/80 border-t border-stone-100 dark:border-stone-700/60 flex items-center justify-between">
+                <button onclick="deleteCurrentDetailEntry()" class="px-3.5 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-regular fa-trash-can"></i> 削除
+                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportCurrentDetailMarkdown()" class="px-3.5 py-1.5 border border-stone-200 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-export"></i> MD出力
+                    </button>
+                    <button onclick="editCurrentDetailEntry()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen"></i> 編集
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-stone-800 w-full max-w-md rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden animate-fade-in">
+            <div class="px-6 py-4 border-b border-stone-100 dark:border-stone-700/60 flex items-center justify-between">
+                <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100">設定・データ管理</h3>
+                <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 transition flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Lock Screen PIN Configuration -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">セキュリティ設定</h4>
+                    <div class="p-4 bg-stone-50 dark:bg-stone-700/50 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-bold text-stone-800 dark:text-stone-200">パスコードロック</p>
+                            <p class="text-xs text-stone-400">アプリ起動時に4桁のPINを要求</p>
+                        </div>
+                        <input type="checkbox" id="passcodeToggle" onchange="togglePasscodeSetting(this.checked)" class="w-5 h-5 accent-brand-600 rounded cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Backup & Export -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">データのエクスポート & バックアップ</h4>
+                    <div class="space-y-2">
+                        <button onclick="exportAllJSON()" class="w-full p-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl border border-stone-200 dark:border-stone-600 text-left flex items-center justify-between transition">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-download text-brand-600"></i>
+                                <span class="text-xs font-bold text-stone-700 dark:text-stone-200">全データをJSON出力</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-stone-400 text-xs"></i>
+                        </button>
+                        <button onclick="importAllJSON()" class="w-full p-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl border border-stone-200 dark:border-stone-600 text-left flex items-center justify-between transition">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-upload text-brand-600"></i>
+                                <span class="text-xs font-bold text-stone-700 dark:text-stone-200">JSONデータを復元・読み込み</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-stone-400 text-xs"></i>
+                        </button>
+                        <input type="file" id="importJsonInput" accept=".json" onchange="processImportJson(event)" class="hidden">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // Global Mood and Weather Configuration Options
+        const MOODS = [
+            { emoji: '😊', label: '晴れやか' },
+            { emoji: '🌿', label: '穏やか' },
+            { emoji: '☕', label: 'リラックス' },
+            { emoji: '🌟', label: 'インスピレーション' },
+            { emoji: '🌧️', label: '憂鬱・しんみり' },
+            { emoji: '🔥', label: '意欲的・情熱' },
+            { emoji: '⚡', label: '忙しい・ストレス' }
+        ];
+
+        const WEATHERS = [
+            { icon: '☀️', label: '晴れ' },
+            { icon: '☁️', label: '曇り' },
+            { icon: '🌧️', label: '雨' },
+            { icon: '❄️', label: '雪' },
+            { icon: '⚡', label: '雷雨' }
+        ];
+
+        // State Object
+        let state = {
+            entries: [],
+            currentView: 'timeline',
+            selectedMoodFilter: 'ALL',
+            selectedTagFilter: 'ALL',
+            searchQuery: '',
+            sortOrder: 'desc',
+            calendarDate: new Date(),
+            passcode: null,
+            isLocked: false,
+            enteredPin: '',
+            activeDetailId: null,
+            editingImages: [],
+            editingVoiceMemo: false
+        };
+
+        const DEMO_ENTRIES = [
+            {
+                id: 'demo-1',
+                date: new Date().toISOString().split('T')[0],
+                title: '春風の強い午後にカフェで読書',
+                content: '午後から近所の小さなお気に入りの喫茶店へ足を運んだ。\nマスターが丁寧に淹れてくれた深煎りコーヒーを飲みながら、ずっと読みたかった小説を半分ほど読み進める。\n外は少し風が強かったけれど、店内には心地よいクラシック音楽が流れていて、本当に穏やかな時間を過ごせた。また週末に訪れたい。',
+                mood: '☕',
+                weather: '☀️',
+                tags: ['カフェ', '読書', '休日'],
+                images: ['https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&auto=format&fit=crop&q=80'],
+                hasVoiceMemo: true,
+                isFavorite: true,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'demo-2',
+                date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+                title: '新しい観葉植物を迎えた日',
+                content: 'フラワーショップで一目惚れしたモンステラの鉢植えを購入！\n部屋の窓際に飾ると、一気に空間がみずみずしく華やかになった気がする。\nこれから毎朝お水をあげるのが楽しみの一つになりそう。大切に育てていきたい。',
+                mood: '🌿',
+                weather: '☁️',
+                tags: ['観葉植物', 'インテリア', '買い物'],
+                images: ['https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format&fit=crop&q=80'],
+                hasVoiceMemo: false,
+                isFavorite: false,
+                createdAt: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                id: 'demo-3',
+                date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0],
+                title: 'プロジェクトが無事にリリース！',
+                content: '数ヶ月間チームで準備を進めてきたWebサービスが本日正式リリースされた。\n直前まで不具合修正に追われてヒヤヒヤしたが、リリース後のユーザーの反応も上々で大きな達成感を感じている。\n夜はチームのみんなとオンライン乾杯。明日はゆっくり休もう。',
+                mood: '🌟',
+                weather: '☀️',
+                tags: ['仕事', '達成感', 'プロジェクト'],
+                images: [],
+                hasVoiceMemo: false,
+                isFavorite: true,
+                createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            if (state.entries.length === 0) {
+                state.entries = DEMO_ENTRIES;
+                saveToStorage();
+            }
+            renderMoodSelectors();
+            renderWeatherSelectors();
+            switchView('timeline');
+            updateStreakCount();
+            
+            if (state.passcode) {
+                lockAppManually();
+            }
+        });
+
+        function loadFromStorage() {
+            try {
+                const savedData = localStorage.getItem('hiyori_diary_data');
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    state.entries = parsed.entries || [];
+                    state.passcode = parsed.passcode || null;
+                }
+            } catch (e) {
+                console.error('Storage load error', e);
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('hiyori_diary_data', JSON.stringify({
+                    entries: state.entries,
+                    passcode: state.passcode
+                }));
+            } catch (e) {
+                console.error('Storage save error', e);
+            }
+        }
+
+        function switchView(viewName) {
+            state.currentView = viewName;
+            
+            // Hide all view panels
+            document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+            
+            // Show target view panel
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) targetView.classList.remove('hidden');
+
+            // Update Desktop Nav styles
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-stone-700', 'shadow-sm', 'text-brand-600', 'font-bold');
+            });
+            const activeNav = document.getElementById(`navBtn-${viewName}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-white', 'dark:bg-stone-700', 'shadow-sm', 'text-brand-600', 'font-bold');
+            }
+
+            // Update Mobile Nav styles
+            document.querySelectorAll('[id^="mobileNav-"]').forEach(btn => {
+                btn.classList.remove('text-brand-600', 'dark:text-brand-400');
+                btn.classList.add('text-stone-400', 'dark:text-stone-500');
+            });
+            const activeMobile = document.getElementById(`mobileNav-${viewName}`);
+            if (activeMobile) {
+                activeMobile.classList.remove('text-stone-400', 'dark:text-stone-500');
+                activeMobile.classList.add('text-brand-600', 'dark:text-brand-400');
+            }
+
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            renderTagCloud();
+            if (state.currentView === 'timeline') {
+                renderTimeline();
+            } else if (state.currentView === 'calendar') {
+                renderCalendar();
+            } else if (state.currentView === 'analytics') {
+                renderAnalytics();
+            } else if (state.currentView === 'favorites') {
+                renderFavorites();
+            }
+        }
+
+        function getFilteredEntries() {
+            let filtered = [...state.entries];
+
+            // Filter by Mood
+            if (state.selectedMoodFilter !== 'ALL') {
+                filtered = filtered.filter(e => e.mood === state.selectedMoodFilter);
+            }
+
+            // Filter by Tag
+            if (state.selectedTagFilter !== 'ALL') {
+                filtered = filtered.filter(e => e.tags && e.tags.includes(state.selectedTagFilter));
+            }
+
+            // Search Keyword
+            if (state.searchQuery.trim() !== '') {
+                const query = state.searchQuery.toLowerCase();
+                filtered = filtered.filter(e => 
+                    e.title.toLowerCase().includes(query) || 
+                    e.content.toLowerCase().includes(query) ||
+                    (e.tags && e.tags.some(t => t.toLowerCase().includes(query)))
+                );
+            }
+
+            // Sorting
+            const sortSelect = document.getElementById('sortOrderSelect');
+            const sortVal = sortSelect ? sortSelect.value : 'desc';
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.date).getTime();
+                const dateB = new Date(b.date).getTime();
+                return sortVal === 'desc' ? dateB - dateA : dateA - dateB;
+            });
+
+            return filtered;
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('entriesContainer');
+            const entries = getFilteredEntries();
+            document.getElementById('entryCountBadge').innerText = `${entries.length}件`;
+
+            if (entries.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white dark:bg-stone-800 rounded-3xl p-12 text-center border border-stone-200 dark:border-stone-700">
+                        <i class="fa-solid fa-feather-pointed text-4xl text-stone-300 dark:text-stone-600 mb-3"></i>
+                        <p class="text-sm font-bold text-stone-600 dark:text-stone-300">該当する日記が見つかりませんでした</p>
+                        <p class="text-xs text-stone-400 mt-1">検索条件を変更するか、新しい日記を書いてみましょう！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = entries.map(entry => createEntryCardHTML(entry)).join('');
+        }
+
+        function createEntryCardHTML(entry) {
+            const formattedDate = new Date(entry.date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+            const tagsHTML = (entry.tags || []).map(t => `<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-md text-[10px] font-medium">#${t}</span>`).join(' ');
+            const imagePreviewHTML = (entry.images && entry.images.length > 0) ? `
+                <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
+                    ${entry.images.map(img => `<img src="${img}" class="w-16 h-16 object-cover rounded-xl border border-stone-200 dark:border-stone-700" loading="lazy" />`).join('')}
+                </div>
+            ` : '';
+
+            return `
+                <div class="bg-white dark:bg-stone-800 rounded-3xl p-5 border border-stone-200/80 dark:border-stone-700/60 shadow-sm hover:shadow-md transition-all cursor-pointer animate-fade-in group" onclick="openDetailModal('${entry.id}')">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 text-xs font-medium text-stone-500 dark:text-stone-400">
+                            <span>${formattedDate}</span>
+                            <span>•</span>
+                            <span>${entry.weather || '☀️'}</span>
+                            <span class="text-base ml-0.5">${entry.mood || '😊'}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleFavorite('${entry.id}')" class="text-stone-300 dark:text-stone-600 hover:text-amber-400 transition text-base">
+                            <i class="fa-solid fa-star ${entry.isFavorite ? 'text-amber-400' : ''}"></i>
+                        </button>
+                    </div>
+                    <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100 mb-1.5 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">${escapeHTML(entry.title)}</h3>
+                    <p class="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed mb-3">${escapeHTML(entry.content)}</p>
+                    ${imagePreviewHTML}
+                    <div class="flex items-center justify-between mt-3 pt-2 border-t border-stone-100 dark:border-stone-700/50 text-[11px] text-stone-400">
+                        <div class="flex items-center gap-1.5 overflow-x-auto">
+                            ${tagsHTML}
+                        </div>
+                        ${entry.hasVoiceMemo ? '<span class="text-brand-600 dark:text-brand-400 font-medium flex items-center gap-1"><i class="fa-solid fa-microphone text-[10px]"></i> 音声あり</span>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthYearLabel = document.getElementById('calendarMonthYear');
+            
+            const year = state.calendarDate.getFullYear();
+            const month = state.calendarDate.getMonth();
+            
+            monthYearLabel.innerText = `${year}年 ${month + 1}月`;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            
+            grid.innerHTML = '';
+
+            // Blank slots for previous month
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div class="h-20 bg-stone-50/50 dark:bg-stone-900/30 rounded-2xl border border-transparent"></div>`;
+            }
+
+            // Current Month Days
+            const todayStr = new Date().toISOString().split('T')[0];
+            
+            for (let day = 1; day <= totalDays; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEntries = state.entries.filter(e => e.date === dateStr);
+                const isToday = dateStr === todayStr;
+
+                let contentDot = '';
+                if (dayEntries.length > 0) {
+                    const moodList = dayEntries.map(e => e.mood).join(' ');
+                    contentDot = `<div class="text-xs mt-1 truncate">${moodList}</div>`;
+                }
+
+                grid.innerHTML += `
+                    <div onclick="handleCalendarDayClick('${dateStr}')" class="h-20 p-1.5 rounded-2xl border ${isToday ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/20' : 'border-stone-200/60 dark:border-stone-700/60 bg-white dark:bg-stone-800'} hover:border-brand-400 transition cursor-pointer flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-stone-700 dark:text-stone-300'}">${day}</span>
+                            ${dayEntries.length > 0 ? `<span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>` : ''}
+                        </div>
+                        ${contentDot}
+                    </div>
+                `;
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            state.calendarDate.setMonth(state.calendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function resetCalendarToToday() {
+            state.calendarDate = new Date();
+            renderCalendar();
+        }
+
+        function handleCalendarDayClick(dateStr) {
+            const dayEntries = state.entries.filter(e => e.date === dateStr);
+            if (dayEntries.length > 0) {
+                openDetailModal(dayEntries[0].id);
+            } else {
+                openEntryEditor(dateStr);
+            }
+        }
+
+        function renderAnalytics() {
+            const total = state.entries.length;
+            const totalWords = state.entries.reduce((acc, curr) => acc + (curr.content ? curr.content.length : 0), 0);
+
+            document.getElementById('statTotalEntries').innerText = `${total} 件`;
+            document.getElementById('statTotalWords').innerText = `${totalWords.toLocaleString()} 字`;
+
+            // Calculate Top Mood
+            const moodCounts = {};
+            state.entries.forEach(e => {
+                if (e.mood) moodCounts[e.mood] = (moodCounts[e.mood] || 0) + 1;
+            });
+
+            let topMood = '-';
+            let maxCount = 0;
+            for (const [m, c] of Object.entries(moodCounts)) {
+                if (c > maxCount) {
+                    maxCount = c;
+                    topMood = m;
+                }
+            }
+            document.getElementById('statTopMood').innerText = topMood;
+
+            // Render Chart Canvas
+            drawMoodChart(moodCounts, total);
+        }
+
+        function drawMoodChart(moodCounts, total) {
+            const canvas = document.getElementById('moodChartCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const legendContainer = document.getElementById('moodLegendContainer');
+            legendContainer.innerHTML = '';
+
+            if (total === 0) {
+                ctx.fillStyle = '#d1b2a7';
+                ctx.font = '12px Noto Sans JP';
+                ctx.textAlign = 'center';
+                ctx.fillText('データがありません', 100, 105);
+                return;
+            }
+
+            const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#ef4444', '#14b8a6'];
+            let startAngle = 0;
+            let colorIdx = 0;
+
+            for (const moodConfig of MOODS) {
+                const count = moodCounts[moodConfig.emoji] || 0;
+                if (count === 0) continue;
+
+                const sliceAngle = (count / total) * 2 * Math.PI;
+                const color = colors[colorIdx % colors.length];
+
+                // Draw Donut Slice
+                ctx.beginPath();
+                ctx.arc(100, 100, 80, startAngle, startAngle + sliceAngle);
+                ctx.arc(100, 100, 50, startAngle + sliceAngle, startAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+
+                startAngle += sliceAngle;
+                colorIdx++;
+
+                // Add to legend
+                const pct = Math.round((count / total) * 100);
+                legendContainer.innerHTML += `
+                    <div class="flex items-center gap-2 p-2 bg-stone-50 dark:bg-stone-700/40 rounded-xl border border-stone-200/60 dark:border-stone-600">
+                        <span class="w-3 h-3 rounded-full" style="background-color: ${color}"></span>
+                        <span class="text-base">${moodConfig.emoji}</span>
+                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200">${moodConfig.label}</span>
+                        <span class="text-xs text-stone-400 ml-auto">${pct}%</span>
+                    </div>
+                `;
+            }
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favoritesContainer');
+            const favs = state.entries.filter(e => e.isFavorite);
+
+            if (favs.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white dark:bg-stone-800 rounded-3xl p-12 text-center border border-stone-200 dark:border-stone-700">
+                        <i class="fa-solid fa-star text-4xl text-stone-300 dark:text-stone-600 mb-3"></i>
+                        <p class="text-sm font-bold text-stone-600 dark:text-stone-300">お気に入りの日記はまだありません</p>
+                        <p class="text-xs text-stone-400 mt-1">カードの星マークをクリックして追加できます。</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = favs.map(e => createEntryCardHTML(e)).join('');
+        }
+
+        function renderTagCloud() {
+            const container = document.getElementById('tagCloudContainer');
+            const tagSet = new Set();
+            state.entries.forEach(e => (e.tags || []).forEach(t => tagSet.add(t)));
+
+            if (tagSet.size === 0) {
+                container.innerHTML = `<span class="text-xs text-stone-400">タグは未登録です</span>`;
+                return;
+            }
+
+            let html = '';
+            tagSet.forEach(tag => {
+                const isSelected = state.selectedTagFilter === tag;
+                html += `
+                    <button onclick="filterByTag('${tag}')" class="px-2.5 py-1 rounded-xl text-xs font-medium transition ${isSelected ? 'bg-brand-600 text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200'}">
+                        #${tag}
+                    </button>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterByTag(tag) {
+            state.selectedTagFilter = tag;
+            renderCurrentView();
+        }
+
+        function filterByMood(mood) {
+            state.selectedMoodFilter = mood;
+            document.querySelectorAll('#moodFilterGrid button').forEach(btn => {
+                btn.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
+            });
+            const activeBtn = document.getElementById(`moodFilter-${mood}`);
+            if (activeBtn) {
+                activeBtn.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
+            }
+            renderCurrentView();
+        }
+
+        function handleSearch(val) {
+            state.searchQuery = val;
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (val.trim()) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+            renderCurrentView();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            handleSearch('');
+        }
+
+        function renderMoodSelectors() {
+            const container = document.getElementById('modalMoodSelector');
+            container.innerHTML = MOODS.map((m, idx) => `
+                <button type="button" onclick="selectModalMood('${m.emoji}')" id="modalMood-${m.emoji}" class="mood-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base transition flex items-center gap-1 hover:border-brand-400 ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
+                    <span>${m.emoji}</span>
+                </button>
+            `).join('');
+            state.selectedModalMood = MOODS[0].emoji;
+        }
+
+        function renderWeatherSelectors() {
+            const container = document.getElementById('modalWeatherSelector');
+            container.innerHTML = WEATHERS.map((w, idx) => `
+                <button type="button" onclick="selectModalWeather('${w.icon}')" id="modalWeather-${w.icon}" class="weather-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base transition hover:border-brand-400 ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
+                    <span>${w.icon}</span>
+                </button>
+            `).join('');
+            state.selectedModalWeather = WEATHERS[0].icon;
+        }
+
+        function selectModalMood(emoji) {
+            state.selectedModalMood = emoji;
+            document.querySelectorAll('.mood-opt').forEach(b => b.classList.remove('bg-brand-100', 'border-brand-500'));
+            const btn = document.getElementById(`modalMood-${emoji}`);
+            if (btn) btn.classList.add('bg-brand-100', 'border-brand-500');
+        }
+
+        function selectModalWeather(icon) {
+            state.selectedModalWeather = icon;
+            document.querySelectorAll('.weather-opt').forEach(b => b.classList.remove('bg-brand-100', 'border-brand-500'));
+            const btn = document.getElementById(`modalWeather-${icon}`);
+            if (btn) btn.classList.add('bg-brand-100', 'border-brand-500');
+        }
+
+        function openEntryEditor(targetDateStr = null) {
+            document.getElementById('editEntryId').value = '';
+            document.getElementById('entryTitleInput').value = '';
+            document.getElementById('entryContentInput').value = '';
+            document.getElementById('entryTagsInput').value = '';
+            document.getElementById('entryDateInput').value = targetDateStr || new Date().toISOString().split('T')[0];
+            document.getElementById('modalHeaderTitle').innerText = '新しい日記を書く';
+            
+            state.editingImages = [];
+            state.editingVoiceMemo = false;
+            renderImagePreviews();
+            document.getElementById('voiceMemoBadge').classList.add('hidden');
+
+            selectModalMood('😊');
+            selectModalWeather('☀️');
+            updateCharCount();
+
+            document.getElementById('entryModal').classList.remove('hidden');
+        }
+
+        function closeEntryModal() {
+            document.getElementById('entryModal').classList.add('hidden');
+        }
+
+        function updateCharCount() {
+            const txt = document.getElementById('entryContentInput').value;
+            document.getElementById('charCounter').innerText = `${txt.length} 文字`;
+        }
+
+        function insertFormatting(prefix, suffix) {
+            const textarea = document.getElementById('entryContentInput');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+            const replacement = prefix + selectedText + suffix;
+            
+            textarea.value = text.substring(0, start) + replacement + text.substring(end);
+            textarea.focus();
+            textarea.selectionStart = start + prefix.length;
+            textarea.selectionEnd = end + prefix.length;
+            updateCharCount();
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                state.editingImages.push(evt.target.result);
+                renderImagePreviews();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderImagePreviews() {
+            const area = document.getElementById('imagePreviewArea');
+            area.innerHTML = state.editingImages.map((img, i) => `
+                <div class="relative w-16 h-16 rounded-xl border border-stone-200 overflow-hidden group">
+                    <img src="${img}" class="w-full h-full object-cover" />
+                    <button type="button" onclick="removeImage(${i})" class="absolute top-1 right-1 w-5 h-5 bg-stone-900/70 text-white rounded-full text-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeImage(idx) {
+            state.editingImages.splice(idx, 1);
+            renderImagePreviews();
+        }
+
+        function toggleVoiceMemoDemo() {
+            state.editingVoiceMemo = !state.editingVoiceMemo;
+            const badge = document.getElementById('voiceMemoBadge');
+            if (state.editingVoiceMemo) {
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+                showToast('音声メモが添付されました', 'success');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function removeVoiceMemo() {
+            state.editingVoiceMemo = false;
+            document.getElementById('voiceMemoBadge').classList.add('hidden');
+        }
+
+        function saveEntry(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editEntryId').value;
+            const title = document.getElementById('entryTitleInput').value.trim();
+            const date = document.getElementById('entryDateInput').value;
+            const content = document.getElementById('entryContentInput').value.trim();
+            const tagsRaw = document.getElementById('entryTagsInput').value;
+
+            const tags = tagsRaw.split(/[,、]/).map(t => t.trim()).filter(t => t.length > 0);
+
+            if (editId) {
+                // Update existing
+                const entry = state.entries.find(item => item.id === editId);
+                if (entry) {
+                    entry.title = title;
+                    entry.date = date;
+                    entry.content = content;
+                    entry.mood = state.selectedModalMood;
+                    entry.weather = state.selectedModalWeather;
+                    entry.tags = tags;
+                    entry.images = state.editingImages;
+                    entry.hasVoiceMemo = state.editingVoiceMemo;
+                }
+                showToast('日記を更新しました', 'success');
+            } else {
+                // Create new
+                const newEntry = {
+                    id: 'entry-' + Date.now(),
+                    date,
+                    title,
+                    content,
+                    mood: state.selectedModalMood,
+                    weather: state.selectedModalWeather,
+                    tags,
+                    images: state.editingImages,
+                    hasVoiceMemo: state.editingVoiceMemo,
+                    isFavorite: false,
+                    createdAt: new Date().toISOString()
+                };
+                state.entries.unshift(newEntry);
+                showToast('新しい日記を投稿しました', 'success');
+            }
+
+            saveToStorage();
+            closeEntryModal();
+            updateStreakCount();
+            renderCurrentView();
+        }
+
+        function openDetailModal(id) {
+            const entry = state.entries.find(e => e.id === id);
+            if (!entry) return;
+
+            state.activeDetailId = id;
+            document.getElementById('detailTitle').innerText = entry.title;
+            document.getElementById('detailDate').innerText = new Date(entry.date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+            document.getElementById('detailWeather').innerText = `${entry.weather || '☀️'}`;
+            document.getElementById('detailMoodEmoji').innerText = entry.mood || '😊';
+            document.getElementById('detailContent').innerText = entry.content;
+
+            // Fav icon
+            const favBtn = document.getElementById('detailFavBtn');
+            favBtn.innerHTML = `<i class="fa-solid fa-star ${entry.isFavorite ? 'text-amber-400' : ''}"></i>`;
+
+            // Tags
+            const tagsDiv = document.getElementById('detailTags');
+            tagsDiv.innerHTML = (entry.tags || []).map(t => `<span class="px-2.5 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-md text-xs font-medium">#${t}</span>`).join('');
+
+            // Images
+            const imgsDiv = document.getElementById('detailImages');
+            imgsDiv.innerHTML = (entry.images || []).map(img => `<img src="${img}" class="w-full h-48 object-cover rounded-2xl border border-stone-200 dark:border-stone-700" />`).join('');
+
+            // Audio memo
+            const audioDiv = document.getElementById('detailAudioMemo');
+            if (entry.hasVoiceMemo) {
+                audioDiv.classList.remove('hidden');
+            } else {
+                audioDiv.classList.add('hidden');
+            }
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            state.activeDetailId = null;
+        }
+
+        function toggleFavorite(id) {
+            const entry = state.entries.find(e => e.id === id);
+            if (entry) {
+                entry.isFavorite = !entry.isFavorite;
+                saveToStorage();
+                renderCurrentView();
+                showToast(entry.isFavorite ? 'お気に入りに追加しました' : 'お気に入りを解除しました', 'info');
+            }
+        }
+
+        function toggleFavoriteFromDetail() {
+            if (state.activeDetailId) {
+                toggleFavorite(state.activeDetailId);
+                openDetailModal(state.activeDetailId);
+            }
+        }
+
+        function editCurrentDetailEntry() {
+            if (!state.activeDetailId) return;
+            const entry = state.entries.find(e => e.id === state.activeDetailId);
+            if (!entry) return;
+
+            closeDetailModal();
+
+            document.getElementById('editEntryId').value = entry.id;
+            document.getElementById('entryTitleInput').value = entry.title;
+            document.getElementById('entryDateInput').value = entry.date;
+            document.getElementById('entryContentInput').value = entry.content;
+            document.getElementById('entryTagsInput').value = (entry.tags || []).join(', ');
+            document.getElementById('modalHeaderTitle').innerText = '日記を編集';
+
+            state.editingImages = [...(entry.images || [])];
+            state.editingVoiceMemo = !!entry.hasVoiceMemo;
+            renderImagePreviews();
+
+            const badge = document.getElementById('voiceMemoBadge');
+            if (state.editingVoiceMemo) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            selectModalMood(entry.mood || '😊');
+            selectModalWeather(entry.weather || '☀️');
+            updateCharCount();
+
+            document.getElementById('entryModal').classList.remove('hidden');
+        }
+
+        function deleteCurrentDetailEntry() {
+            if (!state.activeDetailId) return;
+            state.entries = state.entries.filter(e => e.id !== state.activeDetailId);
+            saveToStorage();
+            closeDetailModal();
+            renderCurrentView();
+            updateStreakCount();
+            showToast('日記を削除しました', 'info');
+        }
+
+        function playDemoAudio(btn) {
+            const bar = document.getElementById('audioProgressBar');
+            btn.innerHTML = `<i class="fa-solid fa-pause"></i>`;
+            bar.style.width = '100%';
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fa-solid fa-play"></i>`;
+                bar.style.width = '0%';
+            }, 3000);
+        }
+
+        function updateStreakCount() {
+            if (state.entries.length === 0) {
+                document.getElementById('streakCount').innerText = '0';
+                return;
+            }
+
+            const dates = Array.from(new Set(state.entries.map(e => e.date))).sort().reverse();
+            let streak = 0;
+            let checkDate = new Date();
+
+            for (let i = 0; i < dates.length; i++) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                if (dates.includes(dateStr)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            document.getElementById('streakCount').innerText = streak || 1;
+        }
+
+        function lockAppManually() {
+            state.isLocked = true;
+            state.enteredPin = '';
+            updatePinDots();
+            document.getElementById('pinErrorMsg').innerText = '';
+            document.getElementById('lockScreenModal').classList.remove('hidden');
+        }
+
+        function appendPin(num) {
+            if (state.enteredPin.length < 4) {
+                state.enteredPin += num;
+                updatePinDots();
+            }
+            if (state.enteredPin.length === 4) {
+                verifyPin();
+            }
+        }
+
+        function backspacePin() {
+            state.enteredPin = state.enteredPin.slice(0, -1);
+            updatePinDots();
+        }
+
+        function clearPin() {
+            state.enteredPin = '';
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            const dots = document.querySelectorAll('.pin-dot');
+            dots.forEach((dot, idx) => {
+                if (idx < state.enteredPin.length) {
+                    dot.innerText = '●';
+                    dot.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
+                } else {
+                    dot.innerText = '';
+                    dot.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
+                }
+            });
+        }
+
+        function verifyPin() {
+            const targetPin = state.passcode || '1234';
+            if (state.enteredPin === targetPin) {
+                state.isLocked = false;
+                document.getElementById('lockScreenModal').classList.add('hidden');
+                showToast('ロックを解除しました', 'success');
+            } else {
+                document.getElementById('pinErrorMsg').innerText = 'パスコードが正しくありません';
+                state.enteredPin = '';
+                setTimeout(updatePinDots, 500);
+            }
+        }
+
+        function openSettingsModal() {
+            document.getElementById('passcodeToggle').checked = !!state.passcode;
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function togglePasscodeSetting(enabled) {
+            if (enabled) {
+                state.passcode = '1234'; // default PIN
+                showToast('パスコード(初期: 1234)を有効化しました', 'success');
+            } else {
+                state.passcode = null;
+                showToast('パスコードを解除しました', 'info');
+            }
+            saveToStorage();
+        }
+
+        function exportAllJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.entries, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `hiyori_diary_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('JSONデータをダウンロードしました', 'success');
+        }
+
+        function importAllJSON() {
+            document.getElementById('importJsonInput').click();
+        }
+
+        function processImportJson(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    if (Array.isArray(imported)) {
+                        state.entries = imported;
+                        saveToStorage();
+                        renderCurrentView();
+                        closeSettingsModal();
+                        showToast('データを正常に復元しました', 'success');
+                    }
+                } catch (err) {
+                    showToast('無効なファイル形式です', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportCurrentDetailMarkdown() {
+            if (!state.activeDetailId) return;
+            const entry = state.entries.find(e => e.id === state.activeDetailId);
+            if (!entry) return;
+
+            const mdContent = `# ${entry.title}\n\n**日付:** ${entry.date}\n**天気:** ${entry.weather || ''} | **気分:** ${entry.mood || ''}\n**タグ:** ${(entry.tags || []).join(', ')}\n\n---\n\n${entry.content}`;
+            const blob = new Blob([mdContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${entry.date}_${entry.title}.md`;
+            a.click();
+            showToast('Markdownファイルを書き出しました', 'success');
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, match => {
+                const escape = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                return escape[match];
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bg = 'bg-stone-800 text-white';
+            if (type === 'success') bg = 'bg-emerald-600 text-white';
+            if (type === 'error') bg = 'bg-red-600 text-white';
+
+            toast.className = `px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2 ${bg} animate-fade-in pointer-events-auto transition-all`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${message}`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
