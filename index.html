@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日和日記 - Hiyori Diary</title>
+    <title>日和日記 - Hiyori Personal Journal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -50,7 +50,6 @@
             background-color: #1a1615;
             color: #ece6e4;
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -133,7 +132,7 @@
                     <i class="fa-regular fa-calendar-days"></i> カレンダー
                 </button>
                 <button onclick="switchView('import')" id="navBtn-import" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
-                    <i class="fa-solid fa-file-import text-amber-500"></i> インポート・移行
+                    <i class="fa-solid fa-file-import text-amber-500"></i> 一括移行・インポート
                 </button>
                 <button onclick="switchView('analytics')" id="navBtn-analytics" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
                     <i class="fa-solid fa-chart-pie"></i> 振り返り・分析
@@ -174,7 +173,7 @@
             <i class="fa-solid fa-plus"></i>
         </button>
         <button onclick="switchView('import')" id="mobileNav-import" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
-            <i class="fa-solid fa-file-import text-lg"></i>
+            <i class="fa-solid fa-file-import text-lg text-amber-500"></i>
             <span>移行</span>
         </button>
         <button onclick="switchView('analytics')" id="mobileNav-analytics" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
@@ -187,7 +186,7 @@
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
-            <!-- Sidebar (Search, Stats, Tag Filters) -->
+            <!-- Sidebar -->
             <aside class="space-y-6 lg:col-span-1">
                 <!-- Search Input -->
                 <div class="bg-white dark:bg-stone-800/80 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
@@ -201,7 +200,7 @@
                     </div>
                 </div>
 
-                <!-- Writing Streak & Quick Stats Widget -->
+                <!-- Streak Widget -->
                 <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl p-5 text-white shadow-lg shadow-brand-600/15 relative overflow-hidden">
                     <div class="absolute -right-4 -bottom-4 text-white/10 text-8xl font-black pointer-events-none select-none">🔥</div>
                     <div class="flex items-center justify-between mb-3">
@@ -212,29 +211,27 @@
                         <span id="streakCount" class="text-4xl font-extrabold font-rounded">1</span>
                         <span class="text-sm text-brand-100">日連続で記録中</span>
                     </div>
-                    <p id="streakMessage" class="text-xs text-brand-100/90 mt-2 leading-relaxed">素晴らしいペースです！日々の思考を言葉に残しましょう。</p>
+                    <p id="streakMessage" class="text-xs text-brand-100/90 mt-2 leading-relaxed">素晴らしいペースです！過去の思い出も一緒に大切に残しましょう。</p>
                 </div>
 
-                <!-- Tag Cloud & Filter -->
+                <!-- Tag Cloud -->
                 <div class="bg-white dark:bg-stone-800/80 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">タグで絞り込み</h3>
-                        <button onclick="filterByTag('ALL')" class="text-[11px] text-brand-600 dark:text-brand-400 hover:underline">すべて表示</button>
+                        <h3 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">タグ絞り込み</h3>
+                        <button onclick="filterByTag('ALL')" class="text-[11px] text-brand-600 dark:text-brand-400 hover:underline">すべて</button>
                     </div>
-                    <div id="tagCloudContainer" class="flex flex-wrap gap-1.5">
-                        <!-- Dynamic Tags rendered here -->
-                    </div>
+                    <div id="tagCloudContainer" class="flex flex-wrap gap-1.5"></div>
                 </div>
             </aside>
 
             <!-- Dynamic Content View Area -->
             <section class="lg:col-span-3 space-y-6">
 
-                <!-- 1. TIMELINE / LIST VIEW -->
+                <!-- 1. TIMELINE VIEW -->
                 <div id="view-timeline" class="view-content space-y-4">
                     <div class="flex items-center justify-between pb-2">
                         <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold font-rounded text-stone-800 dark:text-stone-100" id="timelineTitle">日記一覧</h2>
+                            <h2 class="text-lg font-bold font-rounded text-stone-800 dark:text-stone-100">日記一覧</h2>
                             <span id="entryCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-800 dark:bg-stone-800 dark:text-brand-300">0件</span>
                         </div>
                         <div class="flex items-center gap-2 text-xs text-stone-500">
@@ -246,10 +243,7 @@
                         </div>
                     </div>
 
-                    <!-- Entries List Container -->
-                    <div id="entriesContainer" class="space-y-4">
-                        <!-- Entries render here -->
-                    </div>
+                    <div id="entriesContainer" class="space-y-4"></div>
                 </div>
 
                 <!-- 2. CALENDAR VIEW -->
@@ -277,23 +271,54 @@
                             <div class="py-2">金</div>
                             <div class="py-2 text-blue-500">土</div>
                         </div>
-                        <div id="calendarGrid" class="grid grid-cols-7 gap-1 md:gap-2">
-                            <!-- Calendar Days -->
-                        </div>
+                        <div id="calendarGrid" class="grid grid-cols-7 gap-1 md:gap-2"></div>
                     </div>
                 </div>
 
-                <!-- 3. IMPORT / MIGRATION VIEW -->
+                <!-- 3. IMPORT / MIGRATION VIEW (UPDATED FOR GOOGLE DRIVE & FOLDER BULK IMPORT) -->
                 <div id="view-import" class="view-content hidden space-y-6">
                     <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-stone-800 dark:to-stone-800/80 p-6 rounded-3xl border border-amber-200/80 dark:border-stone-700 shadow-sm space-y-3">
                         <div class="flex items-center gap-3 text-brand-700 dark:text-brand-300">
-                            <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-md">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-md shrink-0">
                                 <i class="fa-solid fa-file-import"></i>
                             </div>
                             <div>
-                                <h2 class="text-base font-bold font-rounded">他アプリ（シンプル日記など）からの移行</h2>
-                                <p class="text-xs text-stone-500 dark:text-stone-400">出力された TXT / HTML / CSV / JSON ファイルを読み込んで一括取り込みします。</p>
+                                <h2 class="text-base font-bold font-rounded">「シンプル日記」などからのフォルダ・複数ファイル一括移行</h2>
+                                <p class="text-xs text-stone-500 dark:text-stone-400">Googleドライブ上の `Diaries` フォルダ内にある全TXTファイルを自動で解析し、一括取り込みします。</p>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Input Options -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Option A: Select Multiple Files -->
+                        <div class="bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200 dark:border-stone-700 text-center space-y-4 hover:border-brand-400 transition">
+                            <div class="w-12 h-12 bg-amber-100 dark:bg-stone-700 text-amber-600 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                                <i class="fa-solid fa-files"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-stone-800 dark:text-stone-100">複数ファイルをまとめて全選択</h3>
+                                <p class="text-xs text-stone-400 mt-1">スマホやPCで複数個の `.txt` ファイルを全選択して読み込みます</p>
+                            </div>
+                            <label class="inline-block cursor-pointer px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/20 transition active:scale-95">
+                                <i class="fa-solid fa-folder-open mr-1"></i> TXTファイルを複数選択
+                                <input type="file" id="importFilesInput" multiple accept=".txt,.html,.csv,.json" onchange="handleFilesSelect(event)" class="hidden">
+                            </label>
+                        </div>
+
+                        <!-- Option B: Select Entire Folder (Diaries) -->
+                        <div class="bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200 dark:border-stone-700 text-center space-y-4 hover:border-brand-400 transition">
+                            <div class="w-12 h-12 bg-amber-100 dark:bg-stone-700 text-amber-600 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                                <i class="fa-solid fa-folder-tree"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-stone-800 dark:text-stone-100">「Diaries」フォルダ丸ごと選択</h3>
+                                <p class="text-xs text-stone-400 mt-1">フォルダ内の階層・サブフォルダを全自動で探索して抽出します</p>
+                            </div>
+                            <label class="inline-block cursor-pointer px-5 py-2.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-bold transition active:scale-95">
+                                <i class="fa-solid fa-folder mr-1"></i> フォルダ丸ごと選択
+                                <input type="file" id="importFolderInput" webkitdirectory directory multiple onchange="handleFilesSelect(event)" class="hidden">
+                            </label>
                         </div>
                     </div>
 
@@ -302,24 +327,12 @@
                         ondragover="event.preventDefault(); this.classList.add('border-brand-500','bg-brand-50/50')"
                         ondragleave="this.classList.remove('border-brand-500','bg-brand-50/50')"
                         ondrop="handleFileDrop(event)"
-                        class="bg-white dark:bg-stone-800 border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-3xl p-8 text-center space-y-4 hover:border-brand-400 transition"
+                        class="bg-white dark:bg-stone-800 border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-3xl p-6 text-center space-y-3"
                     >
-                        <div class="w-16 h-16 bg-brand-100 dark:bg-stone-700 text-brand-600 dark:text-brand-300 rounded-full flex items-center justify-center mx-auto text-2xl">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-stone-800 dark:text-stone-100">ここにファイルをドラッグ＆ドロップ</p>
-                            <p class="text-xs text-stone-400 mt-1">対応フォーマット: TXT (日付自動区切り), HTML, CSV, JSON</p>
-                        </div>
-                        <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
-                            <label class="cursor-pointer px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/20 transition active:scale-95">
-                                <i class="fa-solid fa-folder-open mr-1"></i> ファイルを選択
-                                <input type="file" id="importFileInput" multiple accept=".txt,.html,.htm,.csv,.json" onchange="handleFileSelect(event)" class="hidden">
-                            </label>
-                            <button onclick="loadSampleImportData()" class="px-4 py-2.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-medium transition">
-                                ✨ サンプルTXTデータ（5件）で試す
-                            </button>
-                        </div>
+                        <p class="text-xs font-bold text-stone-500 dark:text-stone-400">またはフォルダやファイルを直接ドラッグ＆ドロップ</p>
+                        <button onclick="loadSampleImportData()" class="px-4 py-2 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-medium transition">
+                            ✨ サンプルデータ（5件）でテストする
+                        </button>
                     </div>
 
                     <!-- Import Preview Container -->
@@ -330,9 +343,7 @@
                             </h3>
                             <button onclick="cancelImport()" class="text-xs text-stone-400 hover:text-stone-600">キャンセル</button>
                         </div>
-                        <div id="importPreviewList" class="max-h-60 overflow-y-auto space-y-2 pr-1">
-                            <!-- Preview Items -->
-                        </div>
+                        <div id="importPreviewList" class="max-h-60 overflow-y-auto space-y-2 pr-1"></div>
                         <div class="flex justify-end gap-3 pt-2">
                             <button onclick="executeImport()" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 transition active:scale-95">
                                 一括インポートを実行する
@@ -559,7 +570,7 @@
                 id: 'demo-1',
                 date: new Date().toISOString().split('T')[0],
                 title: '日和日記へようこそ！',
-                content: '今日からこの日記アプリを使っていきましょう。\n他アプリからの移行は「移行」タブからTXTファイルを読み込ませるだけで一括登録できます。',
+                content: '今日からこの日記アプリを使っていきましょう。\n「一括移行・インポート」タブからGoogleドライブのDiariesフォルダや複数ファイルを読み込ませるだけで一括登録できます。',
                 mood: '😊',
                 weather: '☀️',
                 tags: ['日記', 'スタート'],
@@ -641,84 +652,11 @@
             else if (state.currentView === 'analytics') renderAnalytics();
         }
 
-        function parseDiaryText(text) {
-            const entries = [];
-            const lines = text.split(/\r?\n/);
-            const dateRegex = /^[\s\-_*#=]*((?:20\d{2}|19\d{2})[\/\.\-年]\s*\d{1,2}[\/\.\-月]\s*\d{1,2}日?(?:\s*[\(（][月火水木金土日]+[\)）])?)/;
-
-            let currentEntry = null;
-            let accumulatedLines = [];
-
-            const saveCurrent = () => {
-                if (currentEntry && accumulatedLines.length > 0) {
-                    const fullBody = accumulatedLines.join('\n').trim();
-                    if (fullBody) {
-                        const firstLine = accumulatedLines[0].trim();
-                        let title = '無題';
-                        let body = fullBody;
-
-                        if (firstLine.length > 0 && firstLine.length <= 30 && accumulatedLines.length > 1) {
-                            title = firstLine;
-                            body = accumulatedLines.slice(1).join('\n').trim();
-                        } else {
-                            title = fullBody.slice(0, 24).replace(/\n/g, ' ') + (fullBody.length > 24 ? '...' : '');
-                        }
-
-                        entries.push({
-                            ...currentEntry,
-                            title: title || '無題の日記',
-                            content: body || fullBody
-                        });
-                    }
-                }
-                accumulatedLines = [];
-            };
-
-            for (let line of lines) {
-                const trimmed = line.trim();
-                const isSeparator = /^[\-=_*]{3,}$/.test(trimmed);
-                const match = trimmed.match(dateRegex);
-
-                if (match) {
-                    saveCurrent();
-                    const detectedDate = extractDateStr(match[1]) || new Date().toISOString().split('T')[0];
-                    currentEntry = {
-                        id: `imp-${Date.now()}-${entries.length}`,
-                        date: detectedDate,
-                        mood: '😊',
-                        weather: '☀️',
-                        tags: ['移行データ'],
-                        isFavorite: false,
-                        createdAt: new Date(detectedDate).toISOString()
-                    };
-                    const rest = trimmed.replace(match[0], '').trim();
-                    if (rest) accumulatedLines.push(rest);
-                } else if (isSeparator) {
-                    saveCurrent();
-                    currentEntry = null;
-                } else {
-                    if (!currentEntry) {
-                        const fallbackDate = new Date().toISOString().split('T')[0];
-                        currentEntry = {
-                            id: `imp-${Date.now()}-${entries.length}`,
-                            date: fallbackDate,
-                            mood: '😊',
-                            weather: '☀️',
-                            tags: ['移行データ'],
-                            isFavorite: false,
-                            createdAt: new Date().toISOString()
-                        };
-                    }
-                    accumulatedLines.push(line);
-                }
-            }
-            saveCurrent();
-            return entries;
-        }
-
+        // フォルダ名やテキストから日付をスマート検出するヘルパー
         function extractDateStr(str) {
             if (!str) return null;
-            const matchJP = str.match(/(20\d{2}|19\d{2})[\/\.\-年]\s*(\d{1,2})[\/\.\-月]\s*(\d{1,2})/);
+            // 2026_08_27 または 2026-08-27 または 2026/08/27 または 2026年08月27日
+            const matchJP = str.match(/(20\d{2}|19\d{2})[\/\.\-_年]\s*(\d{1,2})[\/\.\-_月]\s*(\d{1,2})/);
             if (matchJP) {
                 const y = matchJP[1];
                 const m = String(parseInt(matchJP[2])).padStart(2, '0');
@@ -728,41 +666,79 @@
             return null;
         }
 
-        function handleFileSelect(e) {
+        function parseSingleTxtContent(text, pathOrName = '') {
+            const detectedDate = extractDateStr(pathOrName) || extractDateStr(text) || new Date().toISOString().split('T')[0];
+            const trimmed = text.trim();
+            if (!trimmed) return null;
+
+            const lines = trimmed.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            let title = '無題の日記';
+            let body = trimmed;
+
+            if (lines.length > 0) {
+                if (lines[0].length <= 30) {
+                    title = lines[0];
+                    body = lines.slice(1).join('\n').trim() || lines[0];
+                } else {
+                    title = lines[0].slice(0, 24) + (lines[0].length > 24 ? '...' : '');
+                }
+            }
+
+            return {
+                id: `imp-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+                date: detectedDate,
+                title: title,
+                content: body,
+                mood: '😊',
+                weather: '☀️',
+                tags: ['一括移行'],
+                isFavorite: false,
+                createdAt: new Date(detectedDate).toISOString()
+            };
+        }
+
+        function handleFilesSelect(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
-            processFiles(files);
+            processFileList(files);
         }
 
         function handleFileDrop(e) {
             e.preventDefault();
             const files = Array.from(e.dataTransfer.files);
             if (files.length === 0) return;
-            processFiles(files);
+            processFileList(files);
         }
 
-        async function processFiles(files) {
+        async function processFileList(files) {
             let allImports = [];
+            showToast(`${files.length}個のファイルを解析中...`, 'info');
+
             for (let file of files) {
-                const text = await file.text();
                 const ext = file.name.split('.').pop().toLowerCase();
-                if (ext === 'json') {
+                const pathOrName = file.webkitRelativePath || file.name;
+
+                if (ext === 'txt') {
+                    const text = await file.text();
+                    const entry = parseSingleTxtContent(text, pathOrName);
+                    if (entry) allImports.push(entry);
+                } else if (ext === 'json') {
                     try {
+                        const text = await file.text();
                         const parsed = JSON.parse(text);
                         if (Array.isArray(parsed)) allImports.push(...parsed);
                     } catch (err) {}
-                } else {
-                    const parsed = parseDiaryText(text);
-                    allImports.push(...parsed);
                 }
             }
 
             if (allImports.length > 0) {
+                // 日付降順ソート
+                allImports.sort((a, b) => new Date(b.date) - new Date(a.date));
                 state.pendingImports = allImports;
                 renderImportPreview();
-                showToast(`${allImports.length}件の日記データを読み込みました`, 'success');
+                showToast(`🎉 ${allImports.length}件の日記データを検出しました！`, 'success');
             } else {
-                showToast('有効な日記データが見つかりませんでした', 'error');
+                showToast('有効なTXT日記データが見つかりませんでした', 'error');
             }
         }
 
@@ -774,7 +750,7 @@
             list.innerHTML = state.pendingImports.map(e => `
                 <div class="p-3 bg-stone-50 dark:bg-stone-700/50 rounded-xl border border-stone-200 dark:border-stone-600 text-xs">
                     <div class="flex justify-between font-bold text-brand-700 dark:text-brand-300">
-                        <span>${e.date}</span>
+                        <span>📅 ${e.date}</span>
                         <span class="truncate max-w-[180px]">${escapeHTML(e.title)}</span>
                     </div>
                     <p class="text-stone-600 dark:text-stone-300 line-clamp-2 mt-1">${escapeHTML(e.content)}</p>
@@ -786,11 +762,21 @@
 
         function executeImport() {
             if (state.pendingImports.length === 0) return;
-            state.entries = [...state.pendingImports, ...state.entries];
+            
+            // 日付の重複を除外して統合（新しいものを優先）
+            const map = new Map();
+            [...state.pendingImports, ...state.entries].forEach(item => {
+                if (!map.has(item.date)) map.set(item.date, item);
+            });
+
+            state.entries = Array.from(map.values()).sort((a, b) => new Date(b.date) - new Date(a.date));
             saveToStorage();
+
+            const count = state.pendingImports.length;
             state.pendingImports = [];
             document.getElementById('importPreviewContainer').classList.add('hidden');
-            showToast('インポートが完了しました！', 'success');
+            
+            showToast(`✨ ${count}件の日記を一括インポートしました！`, 'success');
             switchView('timeline');
             updateStreakCount();
         }
@@ -801,33 +787,14 @@
         }
 
         function loadSampleImportData() {
-            const sampleTxt = `2024/12/01(日)
-今日から新しい日記アプリを使い始めた。
-画面が見やすくていい感じ！
-
-----------------------------------------
-2024/12/05(木)
-冬の澄んだ空気が気持ちいい。
-カフェでココアを飲みながら読書した。
-
-----------------------------------------
-2024/12/15(日)
-大掃除を少しずつスタート。
-クローゼットを整理したら懐かしい写真が出てきた。
-
-----------------------------------------
-2024/12/24(火)
-クリスマスイブ。
-家族でケーキを食べてのんびり過ごした。
-
-----------------------------------------
-2025/01/01(水)
-あけましておめでとうございます！
-初詣でおみくじを引いたら「大吉」だった！
-`;
-            state.pendingImports = parseDiaryText(sampleTxt);
+            const samples = [
+                { id: 's1', date: '2026-08-27', title: '新しい日記アプリへの移行', content: 'GoogleドライブのDiariesフォルダからデータを一括取り込みできた！', mood: '😊', weather: '☀️', tags: ['移行'], isFavorite: true },
+                { id: 's2', date: '2026-08-26', title: 'カフェで読書', content: '涼しい店内でゆっくり本を読んだ。', mood: '☕', weather: '☁️', tags: ['休日'], isFavorite: false },
+                { id: 's3', date: '2026-08-25', title: '夕方の散歩', content: '風が少し秋らしくなってきた。', mood: '🌿', weather: '☀️', tags: ['散歩'], isFavorite: false }
+            ];
+            state.pendingImports = samples;
             renderImportPreview();
-            showToast('サンプルデータ5件を展開しました', 'info');
+            showToast('サンプルデータを展開しました', 'info');
         }
 
         function getFilteredEntries() {
@@ -867,7 +834,7 @@
                 <div class="bg-white dark:bg-stone-800 rounded-3xl p-5 border border-stone-200/80 dark:border-stone-700/60 shadow-sm hover:shadow-md transition cursor-pointer" onclick="openDetailModal('${e.id}')">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2 text-xs font-medium text-stone-500 dark:text-stone-400">
-                            <span>${e.date}</span>
+                            <span class="font-bold text-brand-600 dark:text-brand-400">${e.date}</span>
                             <span>•</span>
                             <span>${e.weather || '☀️'}</span>
                             <span class="text-base ml-0.5">${e.mood || '😊'}</span>
