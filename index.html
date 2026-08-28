@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日和日記 - Hiyori Personal Journal</title>
-    <!-- Tailwind CSS CDN -->
+    <title>日和日記 - フル機能＆ZIP移行対応版</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- JSZip for ZIP file decompression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- React & Babel for browser execution -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +21,6 @@
     
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -46,26 +51,16 @@
             background-color: #faf7f5;
             color: #332d2b;
         }
-        .dark body {
-            background-color: #1a1615;
-            color: #ece6e4;
-        }
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
         }
         ::-webkit-scrollbar-thumb {
             background: #d1b2a7;
             border-radius: 9999px;
         }
-        .dark ::-webkit-scrollbar-thumb {
-            background: #5e3428;
-        }
         .animate-fade-in {
-            animation: fadeIn 0.25s ease-out forwards;
+            animation: fadeIn 0.2s ease-out forwards;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
@@ -73,1240 +68,826 @@
         }
     </style>
 </head>
-<body class="h-full flex flex-col antialiased selection:bg-brand-200 selection:text-brand-900 dark:selection:bg-brand-800 dark:selection:text-brand-100 transition-colors duration-200">
+<body class="h-full flex flex-col antialiased selection:bg-amber-200 selection:text-amber-900">
 
-    <!-- Lock Screen Modal -->
-    <div id="lockScreenModal" class="hidden fixed inset-0 z-50 bg-stone-900/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-stone-800 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center border border-stone-200 dark:border-stone-700 animate-fade-in">
-            <div class="w-16 h-16 bg-brand-100 dark:bg-stone-700 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-600 dark:text-brand-300 text-2xl">
-                <i class="fa-solid fa-lock"></i>
-            </div>
-            <h2 class="text-xl font-bold font-rounded mb-1 text-stone-800 dark:text-stone-100">日和日記はロックされています</h2>
-            <p class="text-xs text-stone-500 dark:text-stone-400 mb-6">設定した4桁のパスコードを入力してください</p>
-            
-            <div class="flex justify-center gap-3 mb-6" id="pinDisplay">
-                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
-                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
-                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
-                <div class="w-10 h-12 border-2 border-stone-300 dark:border-stone-600 rounded-xl flex items-center justify-center text-xl font-bold text-brand-700 dark:text-brand-300 pin-dot"></div>
-            </div>
+    <div id="root" class="h-full flex flex-col"></div>
 
-            <div class="grid grid-cols-3 gap-3 max-w-[240px] mx-auto mb-4">
-                <button onclick="appendPin('1')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">1</button>
-                <button onclick="appendPin('2')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">2</button>
-                <button onclick="appendPin('3')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">3</button>
-                <button onclick="appendPin('4')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">4</button>
-                <button onclick="appendPin('5')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">5</button>
-                <button onclick="appendPin('6')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">6</button>
-                <button onclick="appendPin('7')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">7</button>
-                <button onclick="appendPin('8')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">8</button>
-                <button onclick="appendPin('9')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">9</button>
-                <button onclick="clearPin()" class="py-3 text-stone-400 hover:text-red-500 rounded-xl text-sm font-medium transition">クリア</button>
-                <button onclick="appendPin('0')" class="py-3 bg-stone-100 dark:bg-stone-700 hover:bg-brand-100 dark:hover:bg-stone-600 rounded-xl text-lg font-medium transition active:scale-95">0</button>
-                <button onclick="backspacePin()" class="py-3 text-stone-500 dark:text-stone-400 rounded-xl text-lg transition"><i class="fa-solid fa-backspace"></i></button>
-            </div>
-            <p id="pinErrorMsg" class="text-xs text-red-500 min-h-[16px] font-medium"></p>
-        </div>
-    </div>
-
-    <!-- Navigation Header -->
-    <header class="sticky top-0 z-30 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <!-- Brand Logo -->
-            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('timeline')">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
-                    <i class="fa-solid fa-book-open text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold font-rounded text-stone-800 dark:text-stone-100 tracking-tight leading-none">日和日記</h1>
-                    <span class="text-[10px] text-brand-600 dark:text-brand-400 font-medium tracking-wider uppercase">Hiyori Personal Journal</span>
-                </div>
-            </div>
-
-            <!-- View Navigation Switcher (Desktop) -->
-            <nav class="hidden md:flex items-center gap-1 bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl border border-stone-200/60 dark:border-stone-700/50">
-                <button onclick="switchView('timeline')" id="navBtn-timeline" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
-                    <i class="fa-solid fa-list-ul"></i> タイムライン
-                </button>
-                <button onclick="switchView('calendar')" id="navBtn-calendar" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
-                    <i class="fa-regular fa-calendar-days"></i> カレンダー
-                </button>
-                <button onclick="switchView('import')" id="navBtn-import" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
-                    <i class="fa-solid fa-file-import text-amber-500"></i> 一括移行・インポート
-                </button>
-                <button onclick="switchView('analytics')" id="navBtn-analytics" class="nav-tab px-4 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
-                    <i class="fa-solid fa-chart-pie"></i> 振り返り・分析
-                </button>
-            </nav>
-
-            <!-- Action Controls -->
-            <div class="flex items-center gap-2">
-                <!-- Dark Mode Toggle -->
-                <button onclick="toggleDarkMode()" title="テーマ切替" class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition">
-                    <i class="fa-solid fa-moon dark:hidden text-sm"></i>
-                    <i class="fa-solid fa-sun hidden dark:block text-amber-400 text-sm"></i>
-                </button>
-                <!-- Settings Button -->
-                <button onclick="openSettingsModal()" title="設定" class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition">
-                    <i class="fa-solid fa-gear text-sm"></i>
-                </button>
-                <!-- New Entry Button -->
-                <button onclick="openEntryEditor()" class="ml-1 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 flex items-center gap-2 transition active:scale-95">
-                    <i class="fa-solid fa-pen-nib"></i>
-                    <span class="hidden sm:inline">日記をかく</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Mobile Bottom Navigation Bar -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-3 py-2 flex justify-around items-center">
-        <button onclick="switchView('timeline')" id="mobileNav-timeline" class="flex flex-col items-center gap-1 text-xs font-medium text-brand-600 dark:text-brand-400">
-            <i class="fa-solid fa-list-ul text-lg"></i>
-            <span>一覧</span>
-        </button>
-        <button onclick="switchView('calendar')" id="mobileNav-calendar" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
-            <i class="fa-regular fa-calendar-days text-lg"></i>
-            <span>カレンダー</span>
-        </button>
-        <button onclick="openEntryEditor()" class="w-12 h-12 -mt-5 rounded-full bg-brand-600 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-600/40 active:scale-90 transition">
-            <i class="fa-solid fa-plus"></i>
-        </button>
-        <button onclick="switchView('import')" id="mobileNav-import" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
-            <i class="fa-solid fa-file-import text-lg text-amber-500"></i>
-            <span>移行</span>
-        </button>
-        <button onclick="switchView('analytics')" id="mobileNav-analytics" class="flex flex-col items-center gap-1 text-xs font-medium text-stone-400 dark:text-stone-500">
-            <i class="fa-solid fa-chart-pie text-lg"></i>
-            <span>分析</span>
-        </button>
-    </div>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
-            <!-- Sidebar -->
-            <aside class="space-y-6 lg:col-span-1">
-                <!-- Search Input -->
-                <div class="bg-white dark:bg-stone-800/80 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
-                    <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2">検索</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
-                        <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="キーワードや出来事..." class="w-full pl-9 pr-8 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-xs focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
-                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Streak Widget -->
-                <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl p-5 text-white shadow-lg shadow-brand-600/15 relative overflow-hidden">
-                    <div class="absolute -right-4 -bottom-4 text-white/10 text-8xl font-black pointer-events-none select-none">🔥</div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-medium text-brand-100 uppercase tracking-wider">継続記録</span>
-                        <span class="px-2 py-0.5 bg-white/20 rounded-full text-[10px] font-bold tracking-wide">ACTIVE</span>
-                    </div>
-                    <div class="flex items-baseline gap-2">
-                        <span id="streakCount" class="text-4xl font-extrabold font-rounded">1</span>
-                        <span class="text-sm text-brand-100">日連続で記録中</span>
-                    </div>
-                    <p id="streakMessage" class="text-xs text-brand-100/90 mt-2 leading-relaxed">素晴らしいペースです！過去の思い出も一緒に大切に残しましょう。</p>
-                </div>
-
-                <!-- Tag Cloud -->
-                <div class="bg-white dark:bg-stone-800/80 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">タグ絞り込み</h3>
-                        <button onclick="filterByTag('ALL')" class="text-[11px] text-brand-600 dark:text-brand-400 hover:underline">すべて</button>
-                    </div>
-                    <div id="tagCloudContainer" class="flex flex-wrap gap-1.5"></div>
-                </div>
-            </aside>
-
-            <!-- Dynamic Content View Area -->
-            <section class="lg:col-span-3 space-y-6">
-
-                <!-- 1. TIMELINE VIEW -->
-                <div id="view-timeline" class="view-content space-y-4">
-                    <div class="flex items-center justify-between pb-2">
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold font-rounded text-stone-800 dark:text-stone-100">日記一覧</h2>
-                            <span id="entryCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-800 dark:bg-stone-800 dark:text-brand-300">0件</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs text-stone-500">
-                            <span>並び順:</span>
-                            <select id="sortOrderSelect" onchange="renderCurrentView()" class="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg px-2 py-1 text-xs text-stone-700 dark:text-stone-300 focus:outline-none">
-                                <option value="desc">新しい順</option>
-                                <option value="asc">古い順</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div id="entriesContainer" class="space-y-4"></div>
-                </div>
-
-                <!-- 2. CALENDAR VIEW -->
-                <div id="view-calendar" class="view-content hidden space-y-4">
-                    <div class="bg-white dark:bg-stone-800 rounded-3xl p-6 border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 id="calendarMonthYear" class="text-xl font-bold font-rounded text-stone-800 dark:text-stone-100">2026年 8月</h2>
-                            <div class="flex items-center gap-2">
-                                <button onclick="changeCalendarMonth(-1)" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 transition">
-                                    <i class="fa-solid fa-chevron-left"></i>
-                                </button>
-                                <button onclick="resetCalendarToToday()" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 transition">今日</button>
-                                <button onclick="changeCalendarMonth(1)" class="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 transition">
-                                    <i class="fa-solid fa-chevron-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-bold text-stone-400">
-                            <div class="py-2 text-red-500">日</div>
-                            <div class="py-2">月</div>
-                            <div class="py-2">火</div>
-                            <div class="py-2">水</div>
-                            <div class="py-2">木</div>
-                            <div class="py-2">金</div>
-                            <div class="py-2 text-blue-500">土</div>
-                        </div>
-                        <div id="calendarGrid" class="grid grid-cols-7 gap-1 md:gap-2"></div>
-                    </div>
-                </div>
-
-                <!-- 3. IMPORT / MIGRATION VIEW (UPDATED FOR GOOGLE DRIVE & FOLDER BULK IMPORT) -->
-                <div id="view-import" class="view-content hidden space-y-6">
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-stone-800 dark:to-stone-800/80 p-6 rounded-3xl border border-amber-200/80 dark:border-stone-700 shadow-sm space-y-3">
-                        <div class="flex items-center gap-3 text-brand-700 dark:text-brand-300">
-                            <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-md shrink-0">
-                                <i class="fa-solid fa-file-import"></i>
-                            </div>
-                            <div>
-                                <h2 class="text-base font-bold font-rounded">「シンプル日記」などからのフォルダ・複数ファイル一括移行</h2>
-                                <p class="text-xs text-stone-500 dark:text-stone-400">Googleドライブ上の `Diaries` フォルダ内にある全TXTファイルを自動で解析し、一括取り込みします。</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Import Input Options -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Option A: Select Multiple Files -->
-                        <div class="bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200 dark:border-stone-700 text-center space-y-4 hover:border-brand-400 transition">
-                            <div class="w-12 h-12 bg-amber-100 dark:bg-stone-700 text-amber-600 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto text-xl">
-                                <i class="fa-solid fa-files"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-bold text-stone-800 dark:text-stone-100">複数ファイルをまとめて全選択</h3>
-                                <p class="text-xs text-stone-400 mt-1">スマホやPCで複数個の `.txt` ファイルを全選択して読み込みます</p>
-                            </div>
-                            <label class="inline-block cursor-pointer px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/20 transition active:scale-95">
-                                <i class="fa-solid fa-folder-open mr-1"></i> TXTファイルを複数選択
-                                <input type="file" id="importFilesInput" multiple accept=".txt,.html,.csv,.json" onchange="handleFilesSelect(event)" class="hidden">
-                            </label>
-                        </div>
-
-                        <!-- Option B: Select Entire Folder (Diaries) -->
-                        <div class="bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200 dark:border-stone-700 text-center space-y-4 hover:border-brand-400 transition">
-                            <div class="w-12 h-12 bg-amber-100 dark:bg-stone-700 text-amber-600 dark:text-amber-300 rounded-2xl flex items-center justify-center mx-auto text-xl">
-                                <i class="fa-solid fa-folder-tree"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-bold text-stone-800 dark:text-stone-100">「Diaries」フォルダ丸ごと選択</h3>
-                                <p class="text-xs text-stone-400 mt-1">フォルダ内の階層・サブフォルダを全自動で探索して抽出します</p>
-                            </div>
-                            <label class="inline-block cursor-pointer px-5 py-2.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-bold transition active:scale-95">
-                                <i class="fa-solid fa-folder mr-1"></i> フォルダ丸ごと選択
-                                <input type="file" id="importFolderInput" webkitdirectory directory multiple onchange="handleFilesSelect(event)" class="hidden">
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Drop Zone -->
-                    <div 
-                        ondragover="event.preventDefault(); this.classList.add('border-brand-500','bg-brand-50/50')"
-                        ondragleave="this.classList.remove('border-brand-500','bg-brand-50/50')"
-                        ondrop="handleFileDrop(event)"
-                        class="bg-white dark:bg-stone-800 border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-3xl p-6 text-center space-y-3"
-                    >
-                        <p class="text-xs font-bold text-stone-500 dark:text-stone-400">またはフォルダやファイルを直接ドラッグ＆ドロップ</p>
-                        <button onclick="loadSampleImportData()" class="px-4 py-2 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-medium transition">
-                            ✨ サンプルデータ（5件）でテストする
-                        </button>
-                    </div>
-
-                    <!-- Import Preview Container -->
-                    <div id="importPreviewContainer" class="hidden bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200 dark:border-stone-700 space-y-4 animate-fade-in">
-                        <div class="flex items-center justify-between border-b border-stone-100 dark:border-stone-700 pb-3">
-                            <h3 class="text-sm font-bold font-rounded text-stone-800 dark:text-stone-100">
-                                検出された日記データ (<span id="importCount">0</span>件)
-                            </h3>
-                            <button onclick="cancelImport()" class="text-xs text-stone-400 hover:text-stone-600">キャンセル</button>
-                        </div>
-                        <div id="importPreviewList" class="max-h-60 overflow-y-auto space-y-2 pr-1"></div>
-                        <div class="flex justify-end gap-3 pt-2">
-                            <button onclick="executeImport()" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 transition active:scale-95">
-                                一括インポートを実行する
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. ANALYTICS VIEW -->
-                <div id="view-analytics" class="view-content hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white dark:bg-stone-800 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-book"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-stone-400 font-medium">総執筆エントリー</p>
-                                <p id="statTotalEntries" class="text-2xl font-bold font-rounded text-stone-800 dark:text-stone-100">0 件</p>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-stone-800 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-font"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-stone-400 font-medium">累積文字数</p>
-                                <p id="statTotalWords" class="text-2xl font-bold font-rounded text-stone-800 dark:text-stone-100">0 字</p>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-stone-800 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-face-smile"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-stone-400 font-medium">最多の気分</p>
-                                <p id="statTopMood" class="text-2xl font-bold font-rounded text-stone-800 dark:text-stone-100">-</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Mood Chart -->
-                    <div class="bg-white dark:bg-stone-800 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-700/60 shadow-sm">
-                        <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100 mb-4">気分の分布と傾向</h3>
-                        <div class="flex flex-col md:flex-row items-center gap-8">
-                            <div class="w-48 h-48 relative flex items-center justify-center">
-                                <canvas id="moodChartCanvas" width="200" height="200"></canvas>
-                            </div>
-                            <div id="moodLegendContainer" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3 w-full"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-        </div>
-    </main>
-
-    <!-- CREATE / EDIT DIARY ENTRY MODAL -->
-    <div id="entryModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <div class="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-auto animate-fade-in">
-            <div class="px-6 py-4 border-b border-stone-100 dark:border-stone-700/60 flex items-center justify-between bg-stone-50/50 dark:bg-stone-800">
-                <h3 id="modalHeaderTitle" class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100">新しい日記を書く</h3>
-                <button onclick="closeEntryModal()" class="w-8 h-8 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 transition flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <form id="entryForm" onsubmit="saveEntry(event)" class="p-6 space-y-4">
-                <input type="hidden" id="editEntryId" value="">
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">タイトル</label>
-                        <input type="text" id="entryTitleInput" required placeholder="今日を一言で表すと...?" class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">日付</label>
-                        <input type="date" id="entryDateInput" required class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">今日の気分</label>
-                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalMoodSelector"></div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">天気</label>
-                        <div class="flex gap-1.5 overflow-x-auto pb-1" id="modalWeatherSelector"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1">タグ (カンマ区切り)</label>
-                    <input type="text" id="entryTagsInput" placeholder="カフェ, 読書, 散歩" class="w-full px-3.5 py-2 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 transition">
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">本文</label>
-                        <span id="charCounter" class="text-[11px] text-stone-400">0 文字</span>
-                    </div>
-                    <textarea id="entryContentInput" rows="6" required oninput="updateCharCount()" placeholder="今日はどんな一日でしたか？感じたことを自由に書き留めましょう..." class="w-full px-3.5 py-2.5 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-stone-800 dark:text-stone-100 leading-relaxed transition"></textarea>
-                </div>
-
-                <div class="pt-2 flex items-center justify-end gap-3 border-t border-stone-100 dark:border-stone-700/60">
-                    <button type="button" onclick="closeEntryModal()" class="px-5 py-2 rounded-xl text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 transition">キャンセル</button>
-                    <button type="submit" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 transition active:scale-95">保存する</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- VIEW DETAIL MODAL -->
-    <div id="detailModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <div class="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-auto animate-fade-in">
-            <div class="p-6 pb-4 border-b border-stone-100 dark:border-stone-700/60 flex items-start justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-2 text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">
-                        <span id="detailDate">2026年8月27日</span>
-                        <span>•</span>
-                        <span id="detailWeather">☀️ 晴れ</span>
-                        <span id="detailMoodEmoji" class="text-base ml-1">😊</span>
-                    </div>
-                    <h2 id="detailTitle" class="text-xl font-bold font-rounded text-stone-800 dark:text-stone-100 leading-snug">日記のタイトル</h2>
-                </div>
-                <div class="flex items-center gap-1">
-                    <button id="detailFavBtn" onclick="toggleFavoriteFromDetail()" class="w-8 h-8 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400 hover:text-amber-400 transition flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-star"></i>
-                    </button>
-                    <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 transition flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="p-6 space-y-4">
-                <div id="detailTags" class="flex flex-wrap gap-1.5"></div>
-                <div id="detailContent" class="text-sm text-stone-700 dark:text-stone-200 leading-relaxed whitespace-pre-wrap font-sans"></div>
-            </div>
-
-            <div class="px-6 py-4 bg-stone-50 dark:bg-stone-800/80 border-t border-stone-100 dark:border-stone-700/60 flex items-center justify-between">
-                <button onclick="deleteCurrentDetailEntry()" class="px-3.5 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                    <i class="fa-regular fa-trash-can"></i> 削除
-                </button>
-                <div class="flex items-center gap-2">
-                    <button onclick="editCurrentDetailEntry()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-pen"></i> 編集
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SETTINGS MODAL -->
-    <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-stone-800 w-full max-w-md rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden animate-fade-in">
-            <div class="px-6 py-4 border-b border-stone-100 dark:border-stone-700/60 flex items-center justify-between">
-                <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100">設定・データ管理</h3>
-                <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 transition flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="p-6 space-y-6">
-                <div class="space-y-2">
-                    <h4 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">セキュリティ設定</h4>
-                    <div class="p-4 bg-stone-50 dark:bg-stone-700/50 rounded-2xl flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-bold text-stone-800 dark:text-stone-200">パスコードロック</p>
-                            <p class="text-xs text-stone-400">アプリ起動時に4桁のPINを要求</p>
-                        </div>
-                        <input type="checkbox" id="passcodeToggle" onchange="togglePasscodeSetting(this.checked)" class="w-5 h-5 accent-brand-600 rounded cursor-pointer">
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <h4 class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">データのエクスポート</h4>
-                    <button onclick="exportAllJSON()" class="w-full p-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-2xl border border-stone-200 dark:border-stone-600 text-left flex items-center justify-between transition">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-download text-brand-600"></i>
-                            <span class="text-xs font-bold text-stone-700 dark:text-stone-200">全データをJSONバックアップ</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-stone-400 text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TOAST CONTAINER -->
-    <div id="toastContainer" class="fixed bottom-16 sm:bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <script>
+    <script type="text/babel">
         const MOODS = [
-            { emoji: '😊', label: '晴れやか' },
-            { emoji: '🌿', label: '穏やか' },
-            { emoji: '☕', label: 'リラックス' },
-            { emoji: '🌟', label: 'インスピレーション' },
-            { emoji: '🌧️', label: '憂鬱' },
-            { emoji: '🔥', label: '情熱' }
+            { id: 'very_happy', label: '最高', emoji: '😆', color: 'text-amber-600 bg-amber-50 border-amber-200' },
+            { id: 'happy', label: '良い', emoji: '😊', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+            { id: 'neutral', label: 'ふつう', emoji: '😐', color: 'text-blue-600 bg-blue-50 border-blue-200' },
+            { id: 'sad', label: 'しょんぼり', emoji: '😢', color: 'text-indigo-600 bg-indigo-50 border-indigo-200' },
+            { id: 'tired', label: 'つかれた', emoji: '😫', color: 'text-rose-600 bg-rose-50 border-rose-200' },
         ];
 
         const WEATHERS = [
-            { icon: '☀️', label: '晴れ' },
-            { icon: '☁️', label: '曇り' },
-            { icon: '🌧️', label: '雨' },
-            { icon: '❄️', label: '雪' }
+            { id: 'sunny', label: '晴れ', icon: '☀️' },
+            { id: 'cloudy', label: 'くもり', icon: '☁️' },
+            { id: 'rainy', label: '雨', icon: '🌧️' },
+            { id: 'snowy', label: '雪', icon: '❄️' },
         ];
 
-        let state = {
-            entries: [],
-            currentView: 'timeline',
-            selectedTagFilter: 'ALL',
-            searchQuery: '',
-            calendarDate: new Date(),
-            passcode: null,
-            isLocked: false,
-            enteredPin: '',
-            activeDetailId: null,
-            pendingImports: []
-        };
-
-        const INITIAL_DEMO = [
+        const INITIAL_ENTRIES = [
             {
                 id: 'demo-1',
                 date: new Date().toISOString().split('T')[0],
-                title: '日和日記へようこそ！',
-                content: '今日からこの日記アプリを使っていきましょう。\n「一括移行・インポート」タブからGoogleドライブのDiariesフォルダや複数ファイルを読み込ませるだけで一括登録できます。',
-                mood: '😊',
-                weather: '☀️',
+                title: '新しい日和日記へようこそ！',
+                content: '写真の添付、天気や気分の記録、カレンダーでの振り返り、Diaries.zipからの一括取り込みに完全対応した日記アプリです。',
+                mood: 'very_happy',
+                weather: 'sunny',
                 tags: ['日記', 'スタート'],
                 isFavorite: true,
+                image: null,
                 createdAt: new Date().toISOString()
             }
         ];
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadFromStorage();
-            if (state.entries.length === 0) {
-                state.entries = INITIAL_DEMO;
-                saveToStorage();
-            }
-            renderMoodSelectors();
-            renderWeatherSelectors();
-            switchView('timeline');
-            updateStreakCount();
+        // 日付フォーマットヘルパー
+        const formatDateStr = (date) => {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
 
-            if (state.passcode) {
-                lockAppManually();
-            }
-        });
+        const getJapaneseDateStr = (dateStr) => {
+            if (!dateStr) return '';
+            const [y, m, d] = dateStr.split('-');
+            const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+            const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+            return `${y}年${parseInt(m)}月${parseInt(d)}日 (${weekDays[date.getDay()]})`;
+        };
 
-        function loadFromStorage() {
-            try {
-                const saved = localStorage.getItem('hiyori_diary_data');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    state.entries = parsed.entries || [];
-                    state.passcode = parsed.passcode || null;
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function saveToStorage() {
-            try {
-                localStorage.setItem('hiyori_diary_data', JSON.stringify({
-                    entries: state.entries,
-                    passcode: state.passcode
-                }));
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function switchView(viewName) {
-            state.currentView = viewName;
-            document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
-            
-            const target = document.getElementById(`view-${viewName}`);
-            if (target) target.classList.remove('hidden');
-
-            document.querySelectorAll('.nav-tab').forEach(btn => {
-                btn.classList.remove('bg-white', 'dark:bg-stone-700', 'shadow-sm', 'text-brand-600', 'font-bold');
-            });
-            const activeNav = document.getElementById(`navBtn-${viewName}`);
-            if (activeNav) activeNav.classList.add('bg-white', 'dark:bg-stone-700', 'shadow-sm', 'text-brand-600', 'font-bold');
-
-            document.querySelectorAll('[id^="mobileNav-"]').forEach(btn => {
-                btn.classList.remove('text-brand-600', 'dark:text-brand-400');
-                btn.classList.add('text-stone-400', 'dark:text-stone-500');
-            });
-            const activeMobile = document.getElementById(`mobileNav-${viewName}`);
-            if (activeMobile) {
-                activeMobile.classList.remove('text-stone-400', 'dark:text-stone-500');
-                activeMobile.classList.add('text-brand-600', 'dark:text-brand-400');
-            }
-
-            renderCurrentView();
-        }
-
-        function renderCurrentView() {
-            renderTagCloud();
-            if (state.currentView === 'timeline') renderTimeline();
-            else if (state.currentView === 'calendar') renderCalendar();
-            else if (state.currentView === 'analytics') renderAnalytics();
-        }
-
-        // フォルダ名やテキストから日付をスマート検出するヘルパー
-        function extractDateStr(str) {
+        const extractDateFromText = (str) => {
             if (!str) return null;
-            // 2026_08_27 または 2026-08-27 または 2026/08/27 または 2026年08月27日
-            const matchJP = str.match(/(20\d{2}|19\d{2})[\/\.\-_年]\s*(\d{1,2})[\/\.\-_月]\s*(\d{1,2})/);
-            if (matchJP) {
-                const y = matchJP[1];
-                const m = String(parseInt(matchJP[2])).padStart(2, '0');
-                const d = String(parseInt(matchJP[3])).padStart(2, '0');
+            const match = str.match(/(20\d{2}|19\d{2})[\/\.\-_年]\s*(\d{1,2})[\/\.\-_月]\s*(\d{1,2})/);
+            if (match) {
+                const y = match[1];
+                const m = String(parseInt(match[2])).padStart(2, '0');
+                const d = String(parseInt(match[3])).padStart(2, '0');
                 return `${y}-${m}-${d}`;
             }
             return null;
-        }
+        };
 
-        function parseSingleTxtContent(text, pathOrName = '') {
-            const detectedDate = extractDateStr(pathOrName) || extractDateStr(text) || new Date().toISOString().split('T')[0];
-            const trimmed = text.trim();
-            if (!trimmed) return null;
-
-            const lines = trimmed.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
-            let title = '無題の日記';
-            let body = trimmed;
-
-            if (lines.length > 0) {
-                if (lines[0].length <= 30) {
-                    title = lines[0];
-                    body = lines.slice(1).join('\n').trim() || lines[0];
-                } else {
-                    title = lines[0].slice(0, 24) + (lines[0].length > 24 ? '...' : '');
+        function App() {
+            const [entries, setEntries] = React.useState(() => {
+                try {
+                    const saved = localStorage.getItem('hiyori_diary_data_full');
+                    return saved ? JSON.parse(saved) : INITIAL_ENTRIES;
+                } catch (e) {
+                    return INITIAL_ENTRIES;
                 }
-            }
+            });
 
-            return {
-                id: `imp-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-                date: detectedDate,
-                title: title,
-                content: body,
-                mood: '😊',
-                weather: '☀️',
-                tags: ['一括移行'],
-                isFavorite: false,
-                createdAt: new Date(detectedDate).toISOString()
+            const [currentTab, setCurrentTab] = React.useState('timeline');
+            const [searchQuery, setSearchQuery] = React.useState('');
+            const [filterMood, setFilterMood] = React.useState('all');
+            const [filterTag, setFilterTag] = React.useState('all');
+            const [onlyFavorites, setOnlyFavorites] = React.useState(false);
+
+            // カレンダー用
+            const [calendarDate, setCalendarDate] = React.useState(new Date());
+            const [selectedCalendarDate, setSelectedCalendarDate] = React.useState(formatDateStr(new Date()));
+
+            // エディタモーダル用
+            const [isModalOpen, setIsModalOpen] = React.useState(false);
+            const [editingId, setEditingId] = React.useState(null);
+            const [formDate, setFormDate] = React.useState(formatDateStr(new Date()));
+            const [formTitle, setFormTitle] = React.useState('');
+            const [formContent, setFormContent] = React.useState('');
+            const [formMood, setFormMood] = React.useState('happy');
+            const [formWeather, setFormWeather] = React.useState('sunny');
+            const [formTags, setFormTags] = React.useState('');
+            const [formImage, setFormImage] = React.useState(null);
+
+            // ZIPインポート用
+            const [pendingImports, setPendingImports] = React.useState([]);
+            const [importConflictMode, setImportConflictMode] = React.useState('overwrite');
+            const [isImporting, setIsImporting] = React.useState(false);
+            const [toast, setToast] = React.useState(null);
+
+            // LocalStorage同期
+            React.useEffect(() => {
+                try {
+                    localStorage.setItem('hiyori_diary_data_full', JSON.stringify(entries));
+                } catch (e) {
+                    console.error(e);
+                }
+            }, [entries]);
+
+            const showToast = (message, type = 'info') => {
+                setToast({ message, type });
+                setTimeout(() => setToast(null), 3200);
             };
-        }
 
-        function handleFilesSelect(e) {
-            const files = Array.from(e.target.files);
-            if (files.length === 0) return;
-            processFileList(files);
-        }
+            // 全タグ取得
+            const allTags = React.useMemo(() => {
+                const set = new Set();
+                entries.forEach(e => {
+                    if (Array.isArray(e.tags)) e.tags.forEach(t => t && set.add(t));
+                });
+                return Array.from(set);
+            }, [entries]);
 
-        function handleFileDrop(e) {
-            e.preventDefault();
-            const files = Array.from(e.dataTransfer.files);
-            if (files.length === 0) return;
-            processFileList(files);
-        }
+            // フィルタ済みリスト
+            const filteredEntries = React.useMemo(() => {
+                return entries.filter(item => {
+                    const q = searchQuery.toLowerCase();
+                    const matchSearch = !q || 
+                        item.title.toLowerCase().includes(q) ||
+                        item.content.toLowerCase().includes(q) ||
+                        (item.tags && item.tags.some(t => t.toLowerCase().includes(q)));
+                    
+                    const matchMood = filterMood === 'all' || item.mood === filterMood;
+                    const matchTag = filterTag === 'all' || (item.tags && item.tags.includes(filterTag));
+                    const matchFav = !onlyFavorites || item.isFavorite;
 
-        async function processFileList(files) {
-            let allImports = [];
-            showToast(`${files.length}個のファイルを解析中...`, 'info');
+                    return matchSearch && matchMood && matchTag && matchFav;
+                }).sort((a, b) => new Date(b.date) - new Date(a.date));
+            }, [entries, searchQuery, filterMood, filterTag, onlyFavorites]);
 
-            for (let file of files) {
-                const ext = file.name.split('.').pop().toLowerCase();
-                const pathOrName = file.webkitRelativePath || file.name;
+            // 統計計算
+            const stats = React.useMemo(() => {
+                const totalCount = entries.length;
+                const totalWords = entries.reduce((acc, cur) => acc + (cur.content ? cur.content.length : 0), 0);
+                const avgWords = totalCount > 0 ? Math.round(totalWords / totalCount) : 0;
+                
+                const moodCounts = {};
+                MOODS.forEach(m => moodCounts[m.id] = 0);
+                entries.forEach(e => {
+                    if (moodCounts[e.mood] !== undefined) moodCounts[e.mood]++;
+                });
 
-                if (ext === 'txt') {
-                    const text = await file.text();
-                    const entry = parseSingleTxtContent(text, pathOrName);
-                    if (entry) allImports.push(entry);
-                } else if (ext === 'json') {
-                    try {
-                        const text = await file.text();
-                        const parsed = JSON.parse(text);
-                        if (Array.isArray(parsed)) allImports.push(...parsed);
-                    } catch (err) {}
+                return { totalCount, totalWords, avgWords, moodCounts };
+            }, [entries]);
+
+            const openNewEditor = (targetDate = null) => {
+                setEditingId(null);
+                setFormDate(targetDate || formatDateStr(new Date()));
+                setFormTitle('');
+                setFormContent('');
+                setFormMood('happy');
+                setFormWeather('sunny');
+                setFormTags('');
+                setFormImage(null);
+                setIsModalOpen(true);
+            };
+
+            const openEditEditor = (entry) => {
+                setEditingId(entry.id);
+                setFormDate(entry.date);
+                setFormTitle(entry.title);
+                setFormContent(entry.content);
+                setFormMood(entry.mood || 'happy');
+                setFormWeather(entry.weather || 'sunny');
+                setFormTags(entry.tags ? entry.tags.join(', ') : '');
+                setFormImage(entry.image || null);
+                setIsModalOpen(true);
+            };
+
+            const handleSaveEntry = (e) => {
+                e.preventDefault();
+                if (!formContent.trim() && !formTitle.trim()) {
+                    showToast('タイトルまたは本文を入力してください', 'error');
+                    return;
                 }
-            }
 
-            if (allImports.length > 0) {
-                // 日付降順ソート
-                allImports.sort((a, b) => new Date(b.date) - new Date(a.date));
-                state.pendingImports = allImports;
-                renderImportPreview();
-                showToast(`🎉 ${allImports.length}件の日記データを検出しました！`, 'success');
-            } else {
-                showToast('有効なTXT日記データが見つかりませんでした', 'error');
-            }
-        }
+                const tagArray = formTags
+                    .split(/[,、\s]+/)
+                    .map(t => t.trim())
+                    .filter(t => t.length > 0);
 
-        function renderImportPreview() {
-            const container = document.getElementById('importPreviewContainer');
-            const list = document.getElementById('importPreviewList');
-            document.getElementById('importCount').innerText = state.pendingImports.length;
+                const titleToSave = formTitle.trim() || formContent.slice(0, 20).replace(/\n/g, ' ') || '無題の日記';
 
-            list.innerHTML = state.pendingImports.map(e => `
-                <div class="p-3 bg-stone-50 dark:bg-stone-700/50 rounded-xl border border-stone-200 dark:border-stone-600 text-xs">
-                    <div class="flex justify-between font-bold text-brand-700 dark:text-brand-300">
-                        <span>📅 ${e.date}</span>
-                        <span class="truncate max-w-[180px]">${escapeHTML(e.title)}</span>
-                    </div>
-                    <p class="text-stone-600 dark:text-stone-300 line-clamp-2 mt-1">${escapeHTML(e.content)}</p>
-                </div>
-            `).join('');
+                if (editingId) {
+                    setEntries(prev => prev.map(item => item.id === editingId ? {
+                        ...item,
+                        date: formDate,
+                        title: titleToSave,
+                        content: formContent,
+                        mood: formMood,
+                        weather: formWeather,
+                        tags: tagArray,
+                        image: formImage,
+                        updatedAt: new Date().toISOString()
+                    } : item));
+                    showToast('✏️ 日記を更新しました', 'success');
+                } else {
+                    const newEntry = {
+                        id: `entry-${Date.now()}`,
+                        date: formDate,
+                        title: titleToSave,
+                        content: formContent,
+                        mood: formMood,
+                        weather: formWeather,
+                        tags: tagArray,
+                        image: formImage,
+                        isFavorite: false,
+                        createdAt: new Date().toISOString()
+                    };
+                    setEntries(prev => [newEntry, ...prev]);
+                    showToast('✨ 新しい日記を保存しました', 'success');
+                }
+                setIsModalOpen(false);
+            };
 
-            container.classList.remove('hidden');
-        }
+            const handleDeleteEntry = (id) => {
+                setEntries(prev => prev.filter(e => e.id !== id));
+                showToast('🗑️ 削除しました', 'info');
+            };
 
-        function executeImport() {
-            if (state.pendingImports.length === 0) return;
-            
-            // 日付の重複を除外して統合（新しいものを優先）
-            const map = new Map();
-            [...state.pendingImports, ...state.entries].forEach(item => {
-                if (!map.has(item.date)) map.set(item.date, item);
-            });
+            const toggleFavorite = (id) => {
+                setEntries(prev => prev.map(e => e.id === id ? { ...e, isFavorite: !e.isFavorite } : e));
+            };
 
-            state.entries = Array.from(map.values()).sort((a, b) => new Date(b.date) - new Date(a.date));
-            saveToStorage();
+            const handleImageUpload = (file) => {
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('画像サイズは5MB以下にしてください', 'error');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => setFormImage(e.target.result);
+                reader.readAsDataURL(file);
+            };
 
-            const count = state.pendingImports.length;
-            state.pendingImports = [];
-            document.getElementById('importPreviewContainer').classList.add('hidden');
-            
-            showToast(`✨ ${count}件の日記を一括インポートしました！`, 'success');
-            switchView('timeline');
-            updateStreakCount();
-        }
+            const processZipFile = async (file) => {
+                if (!file || !file.name.toLowerCase().endsWith('.zip')) {
+                    showToast('ZIPファイルを選択してください', 'error');
+                    return;
+                }
 
-        function cancelImport() {
-            state.pendingImports = [];
-            document.getElementById('importPreviewContainer').classList.add('hidden');
-        }
+                setIsImporting(true);
+                try {
+                    const zip = await JSZip.loadAsync(file);
+                    const extracted = [];
 
-        function loadSampleImportData() {
-            const samples = [
-                { id: 's1', date: '2026-08-27', title: '新しい日記アプリへの移行', content: 'GoogleドライブのDiariesフォルダからデータを一括取り込みできた！', mood: '😊', weather: '☀️', tags: ['移行'], isFavorite: true },
-                { id: 's2', date: '2026-08-26', title: 'カフェで読書', content: '涼しい店内でゆっくり本を読んだ。', mood: '☕', weather: '☁️', tags: ['休日'], isFavorite: false },
-                { id: 's3', date: '2026-08-25', title: '夕方の散歩', content: '風が少し秋らしくなってきた。', mood: '🌿', weather: '☀️', tags: ['散歩'], isFavorite: false }
-            ];
-            state.pendingImports = samples;
-            renderImportPreview();
-            showToast('サンプルデータを展開しました', 'info');
-        }
+                    for (let relativePath in zip.files) {
+                        const zipEntry = zip.files[relativePath];
+                        if (zipEntry.dir) continue;
 
-        function getFilteredEntries() {
-            let filtered = [...state.entries];
-            if (state.selectedTagFilter !== 'ALL') {
-                filtered = filtered.filter(e => e.tags && e.tags.includes(state.selectedTagFilter));
-            }
-            if (state.searchQuery.trim() !== '') {
-                const q = state.searchQuery.toLowerCase();
-                filtered = filtered.filter(e => e.title.toLowerCase().includes(q) || e.content.toLowerCase().includes(q));
-            }
-            const sortVal = document.getElementById('sortOrderSelect')?.value || 'desc';
-            filtered.sort((a, b) => {
-                const dateA = new Date(a.date).getTime();
-                const dateB = new Date(b.date).getTime();
-                return sortVal === 'desc' ? dateB - dateA : dateA - dateB;
-            });
-            return filtered;
-        }
+                        if (relativePath.toLowerCase().endsWith('.txt')) {
+                            const content = await zipEntry.async('text');
+                            const trimmed = content.trim();
 
-        function renderTimeline() {
-            const container = document.getElementById('entriesContainer');
-            const entries = getFilteredEntries();
-            document.getElementById('entryCountBadge').innerText = `${entries.length}件`;
+                            const dateFromPath = extractDateFromText(relativePath);
+                            const dateFromContent = extractDateFromText(trimmed);
+                            const finalDate = dateFromPath || dateFromContent || formatDateStr(new Date());
 
-            if (entries.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white dark:bg-stone-800 rounded-3xl p-12 text-center border border-stone-200 dark:border-stone-700">
-                        <i class="fa-solid fa-book-open text-4xl text-stone-300 dark:text-stone-600 mb-3"></i>
-                        <p class="text-sm font-bold text-stone-600 dark:text-stone-300">日記が見つかりませんでした</p>
-                    </div>
-                `;
-                return;
-            }
+                            let title = '無題の日記';
+                            if (trimmed) {
+                                const firstLine = trimmed.split(/\r?\n/)[0].trim();
+                                if (firstLine.length > 0 && firstLine.length <= 25) {
+                                    title = firstLine;
+                                } else {
+                                    title = trimmed.slice(0, 20).replace(/\n/g, ' ') + '...';
+                                }
+                            }
 
-            container.innerHTML = entries.map(e => `
-                <div class="bg-white dark:bg-stone-800 rounded-3xl p-5 border border-stone-200/80 dark:border-stone-700/60 shadow-sm hover:shadow-md transition cursor-pointer" onclick="openDetailModal('${e.id}')">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2 text-xs font-medium text-stone-500 dark:text-stone-400">
-                            <span class="font-bold text-brand-600 dark:text-brand-400">${e.date}</span>
-                            <span>•</span>
-                            <span>${e.weather || '☀️'}</span>
-                            <span class="text-base ml-0.5">${e.mood || '😊'}</span>
+                            extracted.push({
+                                id: `zip-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+                                date: finalDate,
+                                title: title,
+                                content: trimmed || '（本文なし）',
+                                mood: 'happy',
+                                weather: 'sunny',
+                                tags: ['Diaries移行'],
+                                isFavorite: false,
+                                createdAt: new Date(finalDate).toISOString()
+                            });
+                        }
+                    }
+
+                    setIsImporting(false);
+
+                    if (extracted.length > 0) {
+                        extracted.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        setPendingImports(extracted);
+                        showToast(`🎉 ${extracted.length}件の日記データを検出しました！`, 'success');
+                    } else {
+                        showToast('ZIP内に有効なTXT日記データが見つかりませんでした', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    setIsImporting(false);
+                    showToast('ZIPファイルの解析に失敗しました', 'error');
+                }
+            };
+
+            const executeImport = () => {
+                if (pendingImports.length === 0) return;
+
+                let updatedList = [...entries];
+                let added = 0, overwritten = 0;
+
+                pendingImports.forEach(imp => {
+                    const idx = updatedList.findIndex(e => e.date === imp.date);
+                    if (idx >= 0) {
+                        if (importConflictMode === 'overwrite') {
+                            updatedList[idx] = { ...imp, id: updatedList[idx].id };
+                            overwritten++;
+                        } else if (importConflictMode === 'keepBoth') {
+                            updatedList.push(imp);
+                            added++;
+                        }
+                    } else {
+                        updatedList.push(imp);
+                        added++;
+                    }
+                });
+
+                updatedList.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setEntries(updatedList);
+                setPendingImports([]);
+                showToast(`✨ インポート完了: ${added}件追加、${overwritten}件上書き`, 'success');
+                setCurrentTab('timeline');
+            };
+
+            // バックアップデータ出力
+            const exportJSON = () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(entries, null, 2));
+                const anchor = document.createElement('a');
+                anchor.setAttribute("href", dataStr);
+                anchor.setAttribute("download", `hiyori_diary_backup_${formatDateStr(new Date())}.json`);
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                showToast('💾 バックアップを出力しました', 'success');
+            };
+
+            return (
+                <div className="h-full flex flex-col">
+                    {/* トースト通知 */}
+                    {toast && (
+                        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-2xl shadow-xl text-xs font-bold text-white flex items-center gap-2 animate-fade-in ${
+                            toast.type === 'success' ? 'bg-emerald-600' : toast.type === 'error' ? 'bg-rose-600' : 'bg-stone-800'
+                        }`}>
+                            <i className="fa-solid fa-circle-info"></i>
+                            <span>{toast.message}</span>
                         </div>
-                        <button onclick="event.stopPropagation(); toggleFavorite('${e.id}')" class="text-stone-300 dark:text-stone-600 hover:text-amber-400 text-base">
-                            <i class="fa-solid fa-star ${e.isFavorite ? 'text-amber-400' : ''}"></i>
+                    )}
+
+                    {/* ヘッダー */}
+                    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-stone-200">
+                        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentTab('timeline')}>
+                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                                    <i className="fa-solid fa-book-open text-lg"></i>
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold font-rounded text-stone-800 tracking-tight leading-none">日和日記</h1>
+                                    <span className="text-[10px] text-brand-600 font-semibold tracking-wider uppercase">フル機能＆ZIP移行対応</span>
+                                </div>
+                            </div>
+
+                            {/* Nav Buttons (Desktop) */}
+                            <nav className="hidden md:flex items-center gap-1 bg-stone-100 p-1 rounded-2xl border border-stone-200/60">
+                                <button onClick={() => setCurrentTab('timeline')} className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${currentTab === 'timeline' ? 'bg-white shadow-sm text-brand-700 font-bold' : 'text-stone-600'}`}>
+                                    <i className="fa-solid fa-list-ul mr-1"></i> タイムライン
+                                </button>
+                                <button onClick={() => setCurrentTab('calendar')} className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${currentTab === 'calendar' ? 'bg-white shadow-sm text-brand-700 font-bold' : 'text-stone-600'}`}>
+                                    <i className="fa-regular fa-calendar-days mr-1"></i> カレンダー
+                                </button>
+                                <button onClick={() => setCurrentTab('analytics')} className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${currentTab === 'analytics' ? 'bg-white shadow-sm text-brand-700 font-bold' : 'text-stone-600'}`}>
+                                    <i className="fa-solid fa-chart-pie mr-1"></i> 振り返り
+                                </button>
+                                <button onClick={() => setCurrentTab('import')} className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${currentTab === 'import' ? 'bg-white shadow-sm text-amber-600 font-bold' : 'text-stone-600'}`}>
+                                    <i className="fa-solid fa-file-zipper mr-1 text-amber-500"></i> ZIP一括移行
+                                </button>
+                            </nav>
+
+                            <button onClick={() => openNewEditor()} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/30 flex items-center gap-2 transition active:scale-95">
+                                <i className="fa-solid fa-pen-nib"></i>
+                                <span>日記を書く</span>
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Mobile Bottom Navigation */}
+                    <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 px-3 py-2 flex justify-around items-center">
+                        <button onClick={() => setCurrentTab('timeline')} className={`flex flex-col items-center gap-1 text-xs ${currentTab === 'timeline' ? 'text-brand-600 font-bold' : 'text-stone-400'}`}>
+                            <i className="fa-solid fa-list-ul text-base"></i>
+                            <span>一覧</span>
+                        </button>
+                        <button onClick={() => setCurrentTab('calendar')} className={`flex flex-col items-center gap-1 text-xs ${currentTab === 'calendar' ? 'text-brand-600 font-bold' : 'text-stone-400'}`}>
+                            <i className="fa-regular fa-calendar-days text-base"></i>
+                            <span>カレンダー</span>
+                        </button>
+                        <button onClick={() => openNewEditor()} className="w-12 h-12 -mt-5 rounded-full bg-brand-600 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-600/40 active:scale-90 transition">
+                            <i className="fa-solid fa-plus"></i>
+                        </button>
+                        <button onClick={() => setCurrentTab('analytics')} className={`flex flex-col items-center gap-1 text-xs ${currentTab === 'analytics' ? 'text-brand-600 font-bold' : 'text-stone-400'}`}>
+                            <i className="fa-solid fa-chart-pie text-base"></i>
+                            <span>統計</span>
+                        </button>
+                        <button onClick={() => setCurrentTab('import')} className={`flex flex-col items-center gap-1 text-xs ${currentTab === 'import' ? 'text-amber-600 font-bold' : 'text-stone-400'}`}>
+                            <i className="fa-solid fa-file-zipper text-base text-amber-500"></i>
+                            <span>ZIP移行</span>
                         </button>
                     </div>
-                    <h3 class="text-base font-bold font-rounded text-stone-800 dark:text-stone-100 mb-1.5">${escapeHTML(e.title)}</h3>
-                    <p class="text-xs text-stone-600 dark:text-stone-300 line-clamp-3 leading-relaxed mb-3">${escapeHTML(e.content)}</p>
-                    ${e.tags && e.tags.length ? `
-                        <div class="flex flex-wrap gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-700/50">
-                            ${e.tags.map(t => `<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-md text-[10px]">#${t}</span>`).join('')}
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 pb-24 md:pb-12 overflow-y-auto">
+
+                        {/* ================= 1. TIMELINE VIEW ================= */}
+                        {currentTab === 'timeline' && (
+                            <div className="space-y-4 animate-fade-in">
+                                {/* Search & Filters */}
+                                <div className="bg-white p-4 rounded-3xl border border-stone-200 shadow-xs space-y-3">
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <div className="relative flex-1">
+                                            <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs"></i>
+                                            <input
+                                                type="text"
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                placeholder="キーワードやタグで検索..."
+                                                className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-2xl text-xs focus:outline-none focus:border-brand-500"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center gap-2 overflow-x-auto">
+                                            <select value={filterMood} onChange={(e) => setFilterMood(e.target.value)} className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-2xl text-xs font-medium text-stone-700">
+                                                <option value="all">😊 すべての気分</option>
+                                                {MOODS.map(m => <option key={m.id} value={m.id}>{m.emoji} {m.label}</option>)}
+                                            </select>
+
+                                            <select value={filterTag} onChange={(e) => setFilterTag(e.target.value)} className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-2xl text-xs font-medium text-stone-700">
+                                                <option value="all">🏷️ すべてのタグ</option>
+                                                {allTags.map(t => <option key={t} value={t}>#{t}</option>)}
+                                            </select>
+
+                                            <button
+                                                onClick={() => setOnlyFavorites(!onlyFavorites)}
+                                                className={`px-3 py-2 rounded-2xl text-xs font-bold flex items-center gap-1 border transition shrink-0 ${
+                                                    onlyFavorites ? 'bg-amber-100 border-amber-300 text-amber-900' : 'bg-stone-50 border-stone-200 text-stone-600'
+                                                }`}
+                                            >
+                                                <i className={`fa-solid fa-star ${onlyFavorites ? 'text-amber-500' : 'text-stone-300'}`}></i>
+                                                お気に入り
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Entry List */}
+                                {filteredEntries.length === 0 ? (
+                                    <div className="bg-white rounded-3xl p-12 text-center border border-stone-200 space-y-3">
+                                        <i className="fa-solid fa-book-open text-4xl text-stone-300"></i>
+                                        <p className="text-xs font-bold text-stone-500">日記が見つかりませんでした</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {filteredEntries.map(e => {
+                                            const moodObj = MOODS.find(m => m.id === e.mood) || MOODS[1];
+                                            const weatherObj = WEATHERS.find(w => w.id === e.weather);
+
+                                            return (
+                                                <div key={e.id} className="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-xs space-y-3 relative group">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className="text-xs font-bold text-brand-700">📅 {getJapaneseDateStr(e.date)}</span>
+                                                            <span className={`text-[11px] px-2 py-0.5 rounded-full border flex items-center gap-1 ${moodObj.color}`}>
+                                                                <span>{moodObj.emoji}</span>
+                                                                <span>{moodObj.label}</span>
+                                                            </span>
+                                                            {weatherObj && (
+                                                                <span className="text-[11px] text-stone-500 px-2 py-0.5 bg-stone-100 rounded-full">
+                                                                    {weatherObj.icon} {weatherObj.label}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2">
+                                                            <button onClick={() => toggleFavorite(e.id)} className="text-stone-300 hover:text-amber-500">
+                                                                <i className={`fa-solid fa-star ${e.isFavorite ? 'text-amber-500' : ''}`}></i>
+                                                            </button>
+                                                            <button onClick={() => openEditEditor(e)} className="text-stone-400 hover:text-stone-600">
+                                                                <i className="fa-solid fa-pen"></i>
+                                                            </button>
+                                                            <button onClick={() => handleDeleteEntry(e.id)} className="text-stone-300 hover:text-rose-500">
+                                                                <i className="fa-regular fa-trash-can"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <h3 className="text-sm font-bold font-rounded text-stone-800">{e.title}</h3>
+                                                    <p className="text-xs text-stone-600 leading-relaxed whitespace-pre-wrap">{e.content}</p>
+
+                                                    {/* Photo Attachment */}
+                                                    {e.image && (
+                                                        <div className="pt-1">
+                                                            <img src={e.image} alt="添付写真" className="max-h-52 rounded-2xl border border-stone-200 object-cover" />
+                                                        </div>
+                                                    )}
+
+                                                    {/* Tags */}
+                                                    {e.tags && e.tags.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 pt-2">
+                                                            {e.tags.map((t, idx) => (
+                                                                <span key={idx} className="text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-lg font-medium">#{t}</span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* ================= 2. CALENDAR VIEW ================= */}
+                        {currentTab === 'calendar' && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+                                <div className="md:col-span-2 bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h2 className="text-base font-bold font-rounded text-stone-800">
+                                            {calendarDate.getFullYear()}年 {calendarDate.getMonth() + 1}月
+                                        </h2>
+                                        <div className="flex gap-1">
+                                            <button onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1))} className="p-2 border rounded-xl hover:bg-stone-50"><i className="fa-solid fa-chevron-left text-xs"></i></button>
+                                            <button onClick={() => setCalendarDate(new Date())} className="px-3 py-1 text-xs border rounded-xl font-bold">今月</button>
+                                            <button onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1))} className="p-2 border rounded-xl hover:bg-stone-50"><i className="fa-solid fa-chevron-right text-xs"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-7 text-center text-xs font-bold text-stone-400 py-1">
+                                        <span className="text-rose-500">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span className="text-blue-500">土</span>
+                                    </div>
+
+                                    <div className="grid grid-cols-7 gap-1">
+                                        {(() => {
+                                            const year = calendarDate.getFullYear();
+                                            const month = calendarDate.getMonth();
+                                            const firstDay = new Date(year, month, 1).getDay();
+                                            const totalDays = new Date(year, month + 1, 0).getDate();
+                                            const days = [];
+
+                                            for (let i = 0; i < firstDay; i++) {
+                                                days.push(<div key={`blank-${i}`} className="h-16 bg-stone-50/50 rounded-2xl"></div>);
+                                            }
+
+                                            for (let day = 1; day <= totalDays; day++) {
+                                                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                                                const hasEntry = entries.some(e => e.date === dateStr);
+                                                const isSelected = selectedCalendarDate === dateStr;
+
+                                                days.push(
+                                                    <div
+                                                        key={dateStr}
+                                                        onClick={() => setSelectedCalendarDate(dateStr)}
+                                                        className={`h-16 p-1.5 rounded-2xl border cursor-pointer flex flex-col justify-between transition ${
+                                                            isSelected ? 'border-brand-500 bg-brand-50/80 ring-2 ring-brand-500/20' : hasEntry ? 'border-amber-300 bg-amber-50/30' : 'border-stone-200 bg-white'
+                                                        }`}
+                                                    >
+                                                        <span className="text-xs font-bold text-stone-700">{day}</span>
+                                                        {hasEntry && <span className="text-[10px] text-brand-600 font-bold text-center">●</span>}
+                                                    </div>
+                                                );
+                                            }
+                                            return days;
+                                        })()}
+                                    </div>
+                                </div>
+
+                                {/* Calendar Side Preview */}
+                                <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-4">
+                                    <div className="flex items-center justify-between border-b pb-3">
+                                        <h3 className="text-xs font-bold text-stone-800">{getJapaneseDateStr(selectedCalendarDate)}</h3>
+                                        <button onClick={() => openNewEditor(selectedCalendarDate)} className="px-3 py-1 bg-brand-600 text-white rounded-xl text-xs font-bold">
+                                            ＋書く
+                                        </button>
+                                    </div>
+
+                                    {(() => {
+                                        const found = entries.find(e => e.date === selectedCalendarDate);
+                                        if (!found) return <p className="text-xs text-stone-400 text-center py-8">この日の日記はありません</p>;
+                                        const moodObj = MOODS.find(m => m.id === found.mood) || MOODS[1];
+
+                                        return (
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs font-bold">{moodObj.emoji} {moodObj.label}</span>
+                                                    <button onClick={() => openEditEditor(found)} className="text-xs text-brand-600"><i className="fa-solid fa-pen"></i></button>
+                                                </div>
+                                                <h4 className="text-sm font-bold">{found.title}</h4>
+                                                <p className="text-xs text-stone-600 leading-relaxed whitespace-pre-wrap">{found.content}</p>
+                                                {found.image && <img src={found.image} className="rounded-xl max-h-36 object-cover" />}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ================= 3. ANALYTICS VIEW ================= */}
+                        {currentTab === 'analytics' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-xs">
+                                        <span className="text-xs font-bold text-stone-400">総日記数</span>
+                                        <div className="text-2xl font-bold font-rounded text-stone-800 mt-1">{stats.totalCount} <span className="text-xs">件</span></div>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-xs">
+                                        <span className="text-xs font-bold text-stone-400">総文字数</span>
+                                        <div className="text-2xl font-bold font-rounded text-stone-800 mt-1">{stats.totalWords.toLocaleString()} <span className="text-xs">文字</span></div>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-xs col-span-2 sm:col-span-1">
+                                        <span className="text-xs font-bold text-stone-400">1記事平均</span>
+                                        <div className="text-2xl font-bold font-rounded text-stone-800 mt-1">{stats.avgWords} <span className="text-xs">文字</span></div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
+                                    <h3 className="text-sm font-bold font-rounded text-stone-800">😊 気分の割合</h3>
+                                    <div className="space-y-3">
+                                        {MOODS.map(m => {
+                                            const count = stats.moodCounts[m.id] || 0;
+                                            const percentage = stats.totalCount > 0 ? Math.round((count / stats.totalCount) * 100) : 0;
+                                            return (
+                                                <div key={m.id} className="space-y-1">
+                                                    <div className="flex justify-between text-xs font-medium">
+                                                        <span>{m.emoji} {m.label}</span>
+                                                        <span className="text-stone-400">{count}件 ({percentage}%)</span>
+                                                    </div>
+                                                    <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                                                        <div className="bg-brand-500 h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-3">
+                                    <h3 className="text-sm font-bold font-rounded text-stone-800">💾 バックアップ</h3>
+                                    <button onClick={exportJSON} className="px-4 py-2 bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center gap-2">
+                                        <i className="fa-solid fa-download"></i> JSONバックアップをダウンロード
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ================= 4. ZIP IMPORT VIEW ================= */}
+                        {currentTab === 'import' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-3xl border border-amber-200 shadow-xs space-y-2">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                                            <i className="fa-solid fa-file-zipper"></i>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-base font-bold font-rounded text-stone-800">Diaries.zip から一括移行</h2>
+                                            <p className="text-xs text-stone-500 mt-0.5">「シンプル日記」等から出力された `Diaries.zip` を選ぶだけで、端末内でフォルダ構造・日付・`home.txt` 本文を全自動で解析して読み込みます。</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white border-2 border-dashed border-stone-300 rounded-3xl p-8 text-center space-y-4 hover:border-amber-400 transition">
+                                    <i className="fa-solid fa-cloud-arrow-up text-4xl text-amber-500"></i>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-stone-800">Diaries.zip ファイルを選択</h3>
+                                        <p className="text-xs text-stone-400 mt-1">スマホまたはPC内の ZIPファイルを1つ選ぶだけです</p>
+                                    </div>
+
+                                    <label className="cursor-pointer px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-xs font-bold shadow-lg shadow-brand-600/20 inline-flex items-center gap-2 transition active:scale-95">
+                                        <i className="fa-solid fa-folder-open text-amber-300"></i>
+                                        <span>Diaries.zip を選択する</span>
+                                        <input type="file" accept=".zip" onChange={(e) => processZipFile(e.target.files[0])} className="hidden" />
+                                    </label>
+                                </div>
+
+                                {isImporting && (
+                                    <div className="bg-white p-6 rounded-3xl border border-stone-200 text-center space-y-2">
+                                        <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                        <p className="text-xs font-bold text-amber-700">ZIPファイルを解凍・解析中...</p>
+                                    </div>
+                                )}
+
+                                {pendingImports.length > 0 && (
+                                    <div className="bg-white p-6 rounded-3xl border border-stone-200 space-y-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+                                            <h3 className="text-sm font-bold font-rounded">抽出完了: {pendingImports.length}件の日記データ</h3>
+                                            <div className="flex items-center gap-2 text-xs">
+                                                <span>重複時:</span>
+                                                <select value={importConflictMode} onChange={(e) => setImportConflictMode(e.target.value)} className="border rounded-xl px-2 py-1">
+                                                    <option value="overwrite">上書きする</option>
+                                                    <option value="keepBoth">別記事として両方保存</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
+                                            {pendingImports.map((item, idx) => (
+                                                <div key={idx} className="p-3 bg-stone-50 rounded-2xl border text-xs space-y-1">
+                                                    <div className="flex justify-between font-bold text-brand-700">
+                                                        <span>📅 {item.date}</span>
+                                                        <span className="truncate max-w-[200px]">{item.title}</span>
+                                                    </div>
+                                                    <p className="text-stone-600 line-clamp-2">{item.content}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            <button onClick={() => setPendingImports([])} className="px-4 py-2 text-xs text-stone-500">キャンセル</button>
+                                            <button onClick={executeImport} className="px-6 py-2.5 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">
+                                                一括インポートを実行する
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                    </main>
+
+                    {/* ================= CREATE / EDIT MODAL ================= */}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-fade-in max-h-[90vh] flex flex-col">
+                                <div className="px-6 py-4 border-b flex items-center justify-between">
+                                    <h3 className="text-sm font-bold font-rounded text-stone-800">
+                                        {editingId ? '日記を編集' : '日記を書く'}
+                                    </h3>
+                                    <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-400 flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button>
+                                </div>
+
+                                <form onSubmit={handleSaveEntry} className="p-6 space-y-4 overflow-y-auto flex-1">
+                                    {/* Date, Mood, Weather Row */}
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-stone-400 mb-1">日付</label>
+                                            <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} required className="w-full px-2 py-1.5 bg-stone-50 border rounded-xl text-xs" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-stone-400 mb-1">気分</label>
+                                            <select value={formMood} onChange={(e) => setFormMood(e.target.value)} className="w-full px-2 py-1.5 bg-stone-50 border rounded-xl text-xs">
+                                                {MOODS.map(m => <option key={m.id} value={m.id}>{m.emoji} {m.label}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-stone-400 mb-1">天気</label>
+                                            <select value={formWeather} onChange={(e) => setFormWeather(e.target.value)} className="w-full px-2 py-1.5 bg-stone-50 border rounded-xl text-xs">
+                                                {WEATHERS.map(w => <option key={w.id} value={w.id}>{w.icon} {w.label}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Title */}
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-stone-400 mb-1">タイトル</label>
+                                        <input type="text" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder="ひとこと" className="w-full px-3 py-1.5 bg-stone-50 border rounded-xl text-xs" />
+                                    </div>
+
+                                    {/* Content */}
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-stone-400 mb-1">本文</label>
+                                        <textarea value={formContent} onChange={(e) => setFormContent(e.target.value)} rows={6} required placeholder="今日の出来事..." className="w-full px-3 py-2 bg-stone-50 border rounded-xl text-xs leading-relaxed"></textarea>
+                                    </div>
+
+                                    {/* Tags */}
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-stone-400 mb-1">タグ（カンマ区切り）</label>
+                                        <input type="text" value={formTags} onChange={(e) => setFormTags(e.target.value)} placeholder="日常, 読書" className="w-full px-3 py-1.5 bg-stone-50 border rounded-xl text-xs" />
+                                    </div>
+
+                                    {/* Image Attachment */}
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-stone-400 mb-1">写真の添付</label>
+                                        {formImage ? (
+                                            <div className="relative inline-block mt-1">
+                                                <img src={formImage} alt="プレビュー" className="max-h-32 rounded-xl border object-cover" />
+                                                <button type="button" onClick={() => setFormImage(null)} className="absolute top-1 right-1 bg-stone-900/80 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                                                    <i className="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-xs font-bold transition">
+                                                <i className="fa-regular fa-image text-amber-500"></i>
+                                                <span>写真を選択する</span>
+                                                <input type="file" accept="image/*" onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])} className="hidden" />
+                                            </label>
+                                        )}
+                                    </div>
+
+                                    <div className="flex justify-end gap-2 pt-2 border-t">
+                                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-xs text-stone-500">キャンセル</button>
+                                        <button type="submit" className="px-5 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">保存する</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    ` : ''}
+                    )}
                 </div>
-            `).join('');
+            );
         }
 
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            const monthYearLabel = document.getElementById('calendarMonthYear');
-            const year = state.calendarDate.getFullYear();
-            const month = state.calendarDate.getMonth();
-            monthYearLabel.innerText = `${year}年 ${month + 1}月`;
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const totalDays = new Date(year, month + 1, 0).getDate();
-            grid.innerHTML = '';
-
-            for (let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="h-16 bg-stone-50/50 dark:bg-stone-900/30 rounded-2xl"></div>`;
-            }
-
-            const todayStr = new Date().toISOString().split('T')[0];
-            for (let day = 1; day <= totalDays; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayEntries = state.entries.filter(e => e.date === dateStr);
-                const isToday = dateStr === todayStr;
-
-                grid.innerHTML += `
-                    <div onclick="handleCalendarClick('${dateStr}')" class="h-16 p-1 rounded-2xl border ${isToday ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/20' : 'border-stone-200/60 dark:border-stone-700/60 bg-white dark:bg-stone-800'} cursor-pointer flex flex-col justify-between">
-                        <span class="text-xs font-bold ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-stone-700 dark:text-stone-300'}">${day}</span>
-                        ${dayEntries.length > 0 ? `<div class="text-xs truncate">${dayEntries[0].mood || '😊'}</div>` : ''}
-                    </div>
-                `;
-            }
-        }
-
-        function changeCalendarMonth(delta) {
-            state.calendarDate.setMonth(state.calendarDate.getMonth() + delta);
-            renderCalendar();
-        }
-
-        function resetCalendarToToday() {
-            state.calendarDate = new Date();
-            renderCalendar();
-        }
-
-        function handleCalendarClick(dateStr) {
-            const dayEntries = state.entries.filter(e => e.date === dateStr);
-            if (dayEntries.length > 0) openDetailModal(dayEntries[0].id);
-            else openEntryEditor(dateStr);
-        }
-
-        function renderAnalytics() {
-            const total = state.entries.length;
-            const totalWords = state.entries.reduce((acc, curr) => acc + (curr.content ? curr.content.length : 0), 0);
-            document.getElementById('statTotalEntries').innerText = `${total} 件`;
-            document.getElementById('statTotalWords').innerText = `${totalWords.toLocaleString()} 字`;
-
-            const moodCounts = {};
-            state.entries.forEach(e => {
-                if (e.mood) moodCounts[e.mood] = (moodCounts[e.mood] || 0) + 1;
-            });
-
-            let topMood = '-';
-            let maxCount = 0;
-            for (const [m, c] of Object.entries(moodCounts)) {
-                if (c > maxCount) {
-                    maxCount = c;
-                    topMood = m;
-                }
-            }
-            document.getElementById('statTopMood').innerText = topMood;
-
-            drawMoodChart(moodCounts, total);
-        }
-
-        function drawMoodChart(moodCounts, total) {
-            const canvas = document.getElementById('moodChartCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const legendContainer = document.getElementById('moodLegendContainer');
-            legendContainer.innerHTML = '';
-
-            if (total === 0) return;
-
-            const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#ef4444'];
-            let startAngle = 0;
-            let idx = 0;
-
-            for (const m of MOODS) {
-                const count = moodCounts[m.emoji] || 0;
-                if (count === 0) continue;
-
-                const sliceAngle = (count / total) * 2 * Math.PI;
-                const color = colors[idx % colors.length];
-
-                ctx.beginPath();
-                ctx.arc(100, 100, 80, startAngle, startAngle + sliceAngle);
-                ctx.arc(100, 100, 50, startAngle + sliceAngle, startAngle, true);
-                ctx.closePath();
-                ctx.fillStyle = color;
-                ctx.fill();
-
-                startAngle += sliceAngle;
-                idx++;
-
-                const pct = Math.round((count / total) * 100);
-                legendContainer.innerHTML += `
-                    <div class="flex items-center gap-2 p-2 bg-stone-50 dark:bg-stone-700/40 rounded-xl border border-stone-200/60 dark:border-stone-600">
-                        <span class="w-3 h-3 rounded-full" style="background-color: ${color}"></span>
-                        <span class="text-base">${m.emoji}</span>
-                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200">${m.label}</span>
-                        <span class="text-xs text-stone-400 ml-auto">${pct}%</span>
-                    </div>
-                `;
-            }
-        }
-
-        function renderTagCloud() {
-            const container = document.getElementById('tagCloudContainer');
-            const tagSet = new Set();
-            state.entries.forEach(e => (e.tags || []).forEach(t => tagSet.add(t)));
-
-            if (tagSet.size === 0) {
-                container.innerHTML = `<span class="text-xs text-stone-400">タグ未登録</span>`;
-                return;
-            }
-
-            let html = '';
-            tagSet.forEach(tag => {
-                const isSel = state.selectedTagFilter === tag;
-                html += `
-                    <button onclick="filterByTag('${tag}')" class="px-2.5 py-1 rounded-xl text-xs font-medium transition ${isSel ? 'bg-brand-600 text-white' : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300'}">
-                        #${tag}
-                    </button>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function filterByTag(tag) {
-            state.selectedTagFilter = tag;
-            renderCurrentView();
-        }
-
-        function renderMoodSelectors() {
-            const c = document.getElementById('modalMoodSelector');
-            c.innerHTML = MOODS.map((m, idx) => `
-                <button type="button" onclick="selectModalMood('${m.emoji}')" id="modalMood-${m.emoji}" class="mood-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
-                    ${m.emoji}
-                </button>
-            `).join('');
-            state.selectedModalMood = MOODS[0].emoji;
-        }
-
-        function renderWeatherSelectors() {
-            const c = document.getElementById('modalWeatherSelector');
-            c.innerHTML = WEATHERS.map((w, idx) => `
-                <button type="button" onclick="selectModalWeather('${w.icon}')" id="modalWeather-${w.icon}" class="weather-opt px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-base ${idx === 0 ? 'bg-brand-100 border-brand-500' : ''}">
-                    ${w.icon}
-                </button>
-            `).join('');
-            state.selectedModalWeather = WEATHERS[0].icon;
-        }
-
-        function selectModalMood(emoji) {
-            state.selectedModalMood = emoji;
-            document.querySelectorAll('.mood-opt').forEach(b => b.classList.remove('bg-brand-100', 'border-brand-500'));
-            const btn = document.getElementById(`modalMood-${emoji}`);
-            if (btn) btn.classList.add('bg-brand-100', 'border-brand-500');
-        }
-
-        function selectModalWeather(icon) {
-            state.selectedModalWeather = icon;
-            document.querySelectorAll('.weather-opt').forEach(b => b.classList.remove('bg-brand-100', 'border-brand-500'));
-            const btn = document.getElementById(`modalWeather-${icon}`);
-            if (btn) btn.classList.add('bg-brand-100', 'border-brand-500');
-        }
-
-        function openEntryEditor(targetDate = null) {
-            document.getElementById('editEntryId').value = '';
-            document.getElementById('entryTitleInput').value = '';
-            document.getElementById('entryContentInput').value = '';
-            document.getElementById('entryTagsInput').value = '';
-            document.getElementById('entryDateInput').value = targetDate || new Date().toISOString().split('T')[0];
-            document.getElementById('modalHeaderTitle').innerText = '新しい日記を書く';
-            selectModalMood('😊');
-            selectModalWeather('☀️');
-            updateCharCount();
-            document.getElementById('entryModal').classList.remove('hidden');
-        }
-
-        function closeEntryModal() {
-            document.getElementById('entryModal').classList.add('hidden');
-        }
-
-        function updateCharCount() {
-            const txt = document.getElementById('entryContentInput').value;
-            document.getElementById('charCounter').innerText = `${txt.length} 文字`;
-        }
-
-        function saveEntry(e) {
-            e.preventDefault();
-            const editId = document.getElementById('editEntryId').value;
-            const title = document.getElementById('entryTitleInput').value.trim();
-            const date = document.getElementById('entryDateInput').value;
-            const content = document.getElementById('entryContentInput').value.trim();
-            const tagsRaw = document.getElementById('entryTagsInput').value;
-            const tags = tagsRaw.split(/[,、]/).map(t => t.trim()).filter(t => t.length > 0);
-
-            if (editId) {
-                const entry = state.entries.find(item => item.id === editId);
-                if (entry) {
-                    entry.title = title;
-                    entry.date = date;
-                    entry.content = content;
-                    entry.mood = state.selectedModalMood;
-                    entry.weather = state.selectedModalWeather;
-                    entry.tags = tags;
-                }
-                showToast('日記を更新しました', 'success');
-            } else {
-                const newEntry = {
-                    id: 'entry-' + Date.now(),
-                    date,
-                    title,
-                    content,
-                    mood: state.selectedModalMood,
-                    weather: state.selectedModalWeather,
-                    tags,
-                    isFavorite: false,
-                    createdAt: new Date().toISOString()
-                };
-                state.entries.unshift(newEntry);
-                showToast('新しい日記を投稿しました', 'success');
-            }
-
-            saveToStorage();
-            closeEntryModal();
-            updateStreakCount();
-            renderCurrentView();
-        }
-
-        function openDetailModal(id) {
-            const entry = state.entries.find(e => e.id === id);
-            if (!entry) return;
-
-            state.activeDetailId = id;
-            document.getElementById('detailTitle').innerText = entry.title;
-            document.getElementById('detailDate').innerText = entry.date;
-            document.getElementById('detailWeather').innerText = `${entry.weather || '☀️'}`;
-            document.getElementById('detailMoodEmoji').innerText = entry.mood || '😊';
-            document.getElementById('detailContent').innerText = entry.content;
-
-            const favBtn = document.getElementById('detailFavBtn');
-            favBtn.innerHTML = `<i class="fa-solid fa-star ${entry.isFavorite ? 'text-amber-400' : ''}"></i>`;
-
-            const tagsDiv = document.getElementById('detailTags');
-            tagsDiv.innerHTML = (entry.tags || []).map(t => `<span class="px-2.5 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-md text-xs font-medium">#${t}</span>`).join('');
-
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-            state.activeDetailId = null;
-        }
-
-        function toggleFavorite(id) {
-            const entry = state.entries.find(e => e.id === id);
-            if (entry) {
-                entry.isFavorite = !entry.isFavorite;
-                saveToStorage();
-                renderCurrentView();
-                showToast(entry.isFavorite ? 'お気に入りに追加しました' : 'お気に入りを解除しました', 'info');
-            }
-        }
-
-        function toggleFavoriteFromDetail() {
-            if (state.activeDetailId) {
-                toggleFavorite(state.activeDetailId);
-                openDetailModal(state.activeDetailId);
-            }
-        }
-
-        function editCurrentDetailEntry() {
-            if (!state.activeDetailId) return;
-            const entry = state.entries.find(e => e.id === state.activeDetailId);
-            if (!entry) return;
-
-            closeDetailModal();
-            document.getElementById('editEntryId').value = entry.id;
-            document.getElementById('entryTitleInput').value = entry.title;
-            document.getElementById('entryDateInput').value = entry.date;
-            document.getElementById('entryContentInput').value = entry.content;
-            document.getElementById('entryTagsInput').value = (entry.tags || []).join(', ');
-            document.getElementById('modalHeaderTitle').innerText = '日記を編集';
-            selectModalMood(entry.mood || '😊');
-            selectModalWeather(entry.weather || '☀️');
-            updateCharCount();
-            document.getElementById('entryModal').classList.remove('hidden');
-        }
-
-        function deleteCurrentDetailEntry() {
-            if (!state.activeDetailId) return;
-            state.entries = state.entries.filter(e => e.id !== state.activeDetailId);
-            saveToStorage();
-            closeDetailModal();
-            renderCurrentView();
-            updateStreakCount();
-            showToast('日記を削除しました', 'info');
-        }
-
-        function handleSearch(val) {
-            state.searchQuery = val;
-            const clearBtn = document.getElementById('clearSearchBtn');
-            if (val.trim()) clearBtn.classList.remove('hidden');
-            else clearBtn.classList.add('hidden');
-            renderCurrentView();
-        }
-
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            handleSearch('');
-        }
-
-        function updateStreakCount() {
-            if (state.entries.length === 0) {
-                document.getElementById('streakCount').innerText = '0';
-                return;
-            }
-            const dates = Array.from(new Set(state.entries.map(e => e.date))).sort().reverse();
-            let streak = 0;
-            let checkDate = new Date();
-
-            for (let i = 0; i < dates.length; i++) {
-                const dateStr = checkDate.toISOString().split('T')[0];
-                if (dates.includes(dateStr)) {
-                    streak++;
-                    checkDate.setDate(checkDate.getDate() - 1);
-                } else {
-                    break;
-                }
-            }
-            document.getElementById('streakCount').innerText = streak || 1;
-        }
-
-        function lockAppManually() {
-            state.isLocked = true;
-            state.enteredPin = '';
-            updatePinDots();
-            document.getElementById('pinErrorMsg').innerText = '';
-            document.getElementById('lockScreenModal').classList.remove('hidden');
-        }
-
-        function appendPin(num) {
-            if (state.enteredPin.length < 4) {
-                state.enteredPin += num;
-                updatePinDots();
-            }
-            if (state.enteredPin.length === 4) verifyPin();
-        }
-
-        function backspacePin() {
-            state.enteredPin = state.enteredPin.slice(0, -1);
-            updatePinDots();
-        }
-
-        function clearPin() {
-            state.enteredPin = '';
-            updatePinDots();
-        }
-
-        function updatePinDots() {
-            const dots = document.querySelectorAll('.pin-dot');
-            dots.forEach((dot, idx) => {
-                if (idx < state.enteredPin.length) {
-                    dot.innerText = '●';
-                    dot.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
-                } else {
-                    dot.innerText = '';
-                    dot.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-stone-700');
-                }
-            });
-        }
-
-        function verifyPin() {
-            const targetPin = state.passcode || '1234';
-            if (state.enteredPin === targetPin) {
-                state.isLocked = false;
-                document.getElementById('lockScreenModal').classList.add('hidden');
-                showToast('ロックを解除しました', 'success');
-            } else {
-                document.getElementById('pinErrorMsg').innerText = 'パスコードが正しくありません';
-                state.enteredPin = '';
-                setTimeout(updatePinDots, 500);
-            }
-        }
-
-        function openSettingsModal() {
-            document.getElementById('passcodeToggle').checked = !!state.passcode;
-            document.getElementById('settingsModal').classList.remove('hidden');
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-        }
-
-        function togglePasscodeSetting(enabled) {
-            if (enabled) {
-                state.passcode = '1234';
-                showToast('パスコード(初期: 1234)を有効化しました', 'success');
-            } else {
-                state.passcode = null;
-                showToast('パスコードを解除しました', 'info');
-            }
-            saveToStorage();
-        }
-
-        function exportAllJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.entries, null, 2));
-            const a = document.createElement('a');
-            a.setAttribute("href", dataStr);
-            a.setAttribute("download", `hiyori_diary_backup_${new Date().toISOString().split('T')[0]}.json`);
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            showToast('JSONデータを保存しました', 'success');
-        }
-
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
-
-        function escapeHTML(str) {
-            if (!str) return '';
-            return str.replace(/[&<>"']/g, match => {
-                const escape = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-                return escape[match];
-            });
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            let bg = 'bg-stone-800 text-white';
-            if (type === 'success') bg = 'bg-emerald-600 text-white';
-            if (type === 'error') bg = 'bg-red-600 text-white';
-
-            toast.className = `px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2 ${bg} animate-fade-in pointer-events-auto transition-all`;
-            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${message}`;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
